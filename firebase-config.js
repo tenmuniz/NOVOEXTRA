@@ -259,19 +259,57 @@ function loadMilitaries() {
       .then(snapshot => {
         const data = snapshot.val();
         console.log('Dados de militares carregados do Firebase:', data ? Object.keys(data).length : 0, 'registros');
-        return data ? Object.values(data) : [];
+        
+        // Garantir que retornamos um array, mesmo que não haja dados
+        const militaries = data ? Object.values(data) : [];
+        
+        // Verificar se o resultado é realmente um array
+        if (!Array.isArray(militaries)) {
+          console.error('Dados do Firebase não estão no formato esperado (array)');
+          return loadMilitariesFromLocalStorage();
+        }
+        
+        // Verificar se existem militares
+        if (militaries.length === 0) {
+          console.warn('Nenhum militar encontrado no Firebase, tentando localStorage');
+          return loadMilitariesFromLocalStorage();
+        }
+        
+        console.log('Retornando', militaries.length, 'militares do Firebase');
+        return militaries;
       })
       .catch(error => {
         console.error('Erro ao carregar militares do Firebase:', error);
         // Fallback to localStorage if Firebase fails
-        return JSON.parse(localStorage.getItem('militaries') || '[]');
+        return loadMilitariesFromLocalStorage();
       });
   } else {
     // Local fallback
-    console.log('Carregando militares do localStorage...');
-    const localMilitaries = JSON.parse(localStorage.getItem('militaries') || '[]');
-    console.log('Dados de militares carregados do localStorage:', localMilitaries.length, 'registros');
-    return Promise.resolve(localMilitaries);
+    console.log('Firebase indisponível, carregando militares do localStorage...');
+    return Promise.resolve(loadMilitariesFromLocalStorage());
+  }
+  
+  // Função auxiliar para carregar militares do localStorage com segurança
+  function loadMilitariesFromLocalStorage() {
+    try {
+      const localMilitariesStr = localStorage.getItem('militaries');
+      if (!localMilitariesStr) {
+        console.warn('Nenhum dado de militares encontrado no localStorage');
+        return [];
+      }
+      
+      const localMilitaries = JSON.parse(localMilitariesStr);
+      if (!Array.isArray(localMilitaries)) {
+        console.error('Dados de militares no localStorage não são um array válido');
+        return [];
+      }
+      
+      console.log('Dados de militares carregados do localStorage:', localMilitaries.length, 'registros');
+      return localMilitaries;
+    } catch (error) {
+      console.error('Erro ao processar militares do localStorage:', error);
+      return [];
+    }
   }
 }
 
@@ -283,19 +321,47 @@ function loadSchedules() {
       .then(snapshot => {
         const data = snapshot.val() || {};
         console.log('Dados de escalas carregados do Firebase:', Object.keys(data).length, 'datas');
+        
+        // Verificar se o resultado é realmente um objeto
+        if (!data || typeof data !== 'object' || Array.isArray(data)) {
+          console.error('Dados de escalas do Firebase não estão no formato esperado (objeto)');
+          return loadSchedulesFromLocalStorage();
+        }
+        
         return data;
       })
       .catch(error => {
         console.error('Erro ao carregar escalas do Firebase:', error);
         // Fallback to localStorage if Firebase fails
-        return JSON.parse(localStorage.getItem('schedules') || '{}');
+        return loadSchedulesFromLocalStorage();
       });
   } else {
     // Local fallback
-    console.log('Carregando escalas do localStorage...');
-    const localSchedules = JSON.parse(localStorage.getItem('schedules') || '{}');
-    console.log('Dados de escalas carregados do localStorage:', Object.keys(localSchedules).length, 'datas');
-    return Promise.resolve(localSchedules);
+    console.log('Firebase indisponível, carregando escalas do localStorage...');
+    return Promise.resolve(loadSchedulesFromLocalStorage());
+  }
+  
+  // Função auxiliar para carregar escalas do localStorage com segurança
+  function loadSchedulesFromLocalStorage() {
+    try {
+      const localSchedulesStr = localStorage.getItem('schedules');
+      if (!localSchedulesStr) {
+        console.warn('Nenhum dado de escalas encontrado no localStorage');
+        return {};
+      }
+      
+      const localSchedules = JSON.parse(localSchedulesStr);
+      if (!localSchedules || typeof localSchedules !== 'object' || Array.isArray(localSchedules)) {
+        console.error('Dados de escalas no localStorage não são um objeto válido');
+        return {};
+      }
+      
+      console.log('Dados de escalas carregados do localStorage:', Object.keys(localSchedules).length, 'datas');
+      return localSchedules;
+    } catch (error) {
+      console.error('Erro ao processar escalas do localStorage:', error);
+      return {};
+    }
   }
 }
 

@@ -200,15 +200,30 @@ function loadData() {
                 loadMilitaries(),
                 loadSchedules()
             ]).then(([militaries, schedules]) => {
-                state.militaries = militaries || [];
-                state.schedules = schedules || {};
+                console.log('Dados recebidos do Firebase:', militaries ? 'sim' : 'não', schedules ? 'sim' : 'não');
+                
+                if (militaries && militaries.length > 0) {
+                    state.militaries = militaries;
+                    console.log('Militares carregados do Firebase:', state.militaries.length);
+                } else {
+                    console.warn('Não foram encontrados militares no Firebase, carregando do localStorage');
+                    loadMilitariesFromLocalStorage();
+                }
+                
+                if (schedules && Object.keys(schedules).length > 0) {
+                    state.schedules = schedules;
+                    console.log('Escalas carregadas do Firebase:', Object.keys(state.schedules).length);
+                } else {
+                    console.warn('Não foram encontradas escalas no Firebase, carregando do localStorage');
+                    loadSchedulesFromLocalStorage();
+                }
                 
                 // Atualizar o localStorage com os dados do Firebase
-                localStorage.setItem('militaries', JSON.stringify(state.militaries));
-                localStorage.setItem('schedules', JSON.stringify(state.schedules));
+                safeSaveToLocalStorage('militaries', state.militaries);
+                safeSaveToLocalStorage('schedules', state.schedules);
                 
-                console.log('Data loaded from Firebase:', state.militaries.length, 'militaries,', 
-                    Object.keys(state.schedules).length, 'schedules');
+                // Verificar se temos dados após o carregamento
+                validateLoadedData();
                 
                 return true;
             }).catch(error => {
@@ -226,35 +241,100 @@ function loadData() {
     // Função auxiliar para carregar do localStorage
     function loadFromLocalStorage() {
         console.log('Loading from localStorage...');
-        // Load directly from localStorage
-        const localMilitaries = localStorage.getItem('militaries');
-        const localSchedules = localStorage.getItem('schedules');
         
-        if (localMilitaries) {
-            try {
-                state.militaries = JSON.parse(localMilitaries);
-            } catch (e) {
-                console.error('Error parsing militaries from localStorage:', e);
-                state.militaries = [];
-            }
-        }
+        loadMilitariesFromLocalStorage();
+        loadSchedulesFromLocalStorage();
         
-        if (localSchedules) {
-            try {
-                state.schedules = JSON.parse(localSchedules);
-            } catch (e) {
-                console.error('Error parsing schedules from localStorage:', e);
-                state.schedules = {};
-            }
-        }
-        
-        // If no data in localStorage, initialize sample data
-        if (!state.militaries || state.militaries.length === 0) {
-            console.log('No data found, initializing sample data');
-            initializeSampleData();
-        }
+        // Validar dados e inicializar dados de amostra se necessário
+        validateLoadedData();
         
         return Promise.resolve();
+    }
+    
+    // Funções auxiliares para carregar dados específicos
+    function loadMilitariesFromLocalStorage() {
+        try {
+            const localMilitaries = localStorage.getItem('militaries');
+            console.log('Dados militares encontrados no localStorage:', localMilitaries ? 'sim' : 'não');
+            
+            if (localMilitaries) {
+                try {
+                    const parsed = JSON.parse(localMilitaries);
+                    if (Array.isArray(parsed)) {
+                        state.militaries = parsed;
+                        console.log('Militares carregados do localStorage:', state.militaries.length);
+                    } else {
+                        console.error('Dados de militares no localStorage não são um array, reiniciando dados');
+                        state.militaries = [];
+                    }
+                } catch (e) {
+                    console.error('Erro ao analisar militares do localStorage:', e);
+                    state.militaries = [];
+                }
+            } else {
+                console.warn('Nenhum dado de militares encontrado no localStorage');
+                state.militaries = [];
+            }
+        } catch (error) {
+            console.error('Erro ao acessar localStorage para militares:', error);
+            state.militaries = [];
+        }
+    }
+    
+    function loadSchedulesFromLocalStorage() {
+        try {
+            const localSchedules = localStorage.getItem('schedules');
+            console.log('Dados de escalas encontrados no localStorage:', localSchedules ? 'sim' : 'não');
+            
+            if (localSchedules) {
+                try {
+                    const parsed = JSON.parse(localSchedules);
+                    if (parsed && typeof parsed === 'object') {
+                        state.schedules = parsed;
+                        console.log('Escalas carregadas do localStorage:', Object.keys(state.schedules).length);
+                    } else {
+                        console.error('Dados de escalas no localStorage não são um objeto, reiniciando dados');
+                        state.schedules = {};
+                    }
+                } catch (e) {
+                    console.error('Erro ao analisar escalas do localStorage:', e);
+                    state.schedules = {};
+                }
+            } else {
+                console.warn('Nenhum dado de escalas encontrado no localStorage');
+                state.schedules = {};
+            }
+        } catch (error) {
+            console.error('Erro ao acessar localStorage para escalas:', error);
+            state.schedules = {};
+        }
+    }
+    
+    // Validar dados e inicializar dados de amostra se necessário
+    function validateLoadedData() {
+        console.log('Validando dados carregados...');
+        
+        if (!state.militaries || !Array.isArray(state.militaries) || state.militaries.length === 0) {
+            console.warn('Dados de militares inválidos ou vazios, inicializando dados de amostra');
+            initializeSampleData();
+        } else {
+            console.log('Dados válidos: ' + state.militaries.length + ' militares, ' + 
+                Object.keys(state.schedules).length + ' escalas');
+        }
+    }
+}
+
+/**
+ * Função auxiliar para salvar dados no localStorage com tratamento de erros
+ */
+function safeSaveToLocalStorage(key, data) {
+    try {
+        localStorage.setItem(key, JSON.stringify(data));
+        console.log(`Dados '${key}' salvos no localStorage com sucesso`);
+        return true;
+    } catch (error) {
+        console.error(`Erro ao salvar '${key}' no localStorage:`, error);
+        return false;
     }
 }
 
@@ -2223,8 +2303,8 @@ function addMilitary(rank, name, team) {
     
     state.militaries.push(newMilitary);
     
-    // Save to localStorage for fallback
-    localStorage.setItem('militaries', JSON.stringify(state.militaries));
+    // Save to localStorage for fallback - usando a função segura
+    safeSaveToLocalStorage('militaries', state.militaries);
     
     // Save to Firebase if available
     if (checkFirebaseAvailability()) {
@@ -2378,9 +2458,9 @@ function deleteMilitary(id) {
         }
     }
     
-    // Save to localStorage for fallback
-    localStorage.setItem('militaries', JSON.stringify(state.militaries));
-    localStorage.setItem('schedules', JSON.stringify(state.schedules));
+    // Save to localStorage for fallback - usando a função segura
+    safeSaveToLocalStorage('militaries', state.militaries);
+    safeSaveToLocalStorage('schedules', state.schedules);
     
     // Save to Firebase if available
     if (checkFirebaseAvailability()) {

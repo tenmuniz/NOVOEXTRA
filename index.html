@@ -4,6 +4,49 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>POLÍCIA MAIS FORTE - Sistema de Escala</title>
+    <script>
+    // Script para verificar dados corrompidos no início do carregamento da página
+    (function() {
+        console.log('Verificando dados do localStorage...');
+        // Verificar se os dados do localStorage podem estar corrompidos
+        try {
+            const checkMilitaries = localStorage.getItem('militaries');
+            if (checkMilitaries) {
+                // Tentar analisar os militares como JSON
+                const militariesData = JSON.parse(checkMilitaries);
+                // Verificar se é um array
+                if (!Array.isArray(militariesData)) {
+                    console.error('Os dados de militaries no localStorage não são um array válido. Limpando dados corrompidos.');
+                    localStorage.removeItem('militaries');
+                } else {
+                    console.log('Dados de militares verificados: formato válido com', militariesData.length, 'registros');
+                }
+            } else {
+                console.log('Nenhum dado de militares encontrado no localStorage');
+            }
+            
+            const checkSchedules = localStorage.getItem('schedules');
+            if (checkSchedules) {
+                // Tentar analisar as escalas como JSON
+                const schedulesData = JSON.parse(checkSchedules);
+                // Verificar se é um objeto (não array)
+                if (!schedulesData || typeof schedulesData !== 'object' || Array.isArray(schedulesData)) {
+                    console.error('Os dados de schedules no localStorage não são um objeto válido. Limpando dados corrompidos.');
+                    localStorage.removeItem('schedules');
+                } else {
+                    console.log('Dados de escalas verificados: formato válido com', Object.keys(schedulesData).length, 'registros');
+                }
+            } else {
+                console.log('Nenhum dado de escalas encontrado no localStorage');
+            }
+        } catch (error) {
+            // Se houver erro ao analisar os dados, eles estão corrompidos
+            console.error('Erro ao verificar dados do localStorage. Limpando dados potencialmente corrompidos:', error);
+            localStorage.removeItem('militaries');
+            localStorage.removeItem('schedules');
+        }
+    })();
+    </script>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -1183,7 +1226,7 @@
         <!-- Sidebar -->
         <div class="sidebar">
             <div class="logo">
-                <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCI+PHBhdGggZmlsbD0iIzJhMzk5MCIgZD0iTTE5LDEzSDVWMTFIMTlWMTNNMTkuMDksNy41SDRON1Y4LjVIMTlWNy41TTEzLDIxLjVoLTJWMjBoMlYyMS41Ek0xNSwxOWg2djEuNUgxNVYxOU03LDEVIDU0VjQuNUgxNVY2SDcuNXY0LjVIOXYzSDdMNyw2SDYuNVY0LjVINHYybC0xLjVsMFYxOQoJQzIuNSwyMC4zMzMsMy4xNjcsMjEsMy44MzQsMjFoMTYuMzMyYzAuNjY3LDAsMS4zMzMtMC42NjcsMS4zMzQtMS42NjdsLTAuMDAyLTEzLjVoLTEuNEwxOSw5LjVoLTR2LTdINi41VjdINHYtSyIvPjwvc3ZnPg==">
+                <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCI+PHBhdGggZmlsbD0iIzJhMzk5MCIgZD0iTTE5LDEzSDVWMTFIMTlWMTNNMTkuMDksNy41SDRON1Y4LjVIMTlWNy41TTEzLDIxLjVoLTJWMjBoMlYyMS41Ek0xNSwxOWg2djEuNUgxNVYxOU03LDEVIDU4VjQuNUgxNVY2SDcuNXY0LjVIOXYzSDdMNyw2SDYuNVY0LjVINHYybC0xLjVsMFYxOQoJQzIuNSwyMC4zMzMsMy4xNjcsMjEsMy44MzQsMjFoMTYuMzMyYzAuNjY3LDAsMS4zMzMtMC42NjcsMS4zMzQtMS42NjdsLTAuMDAyLTEzLjVoLTEuNEwxOSw5LjVoLTR2LTdINi41VjdINHYtSyIvPjwvc3ZnPg==">
                 <div class="logo-text">
                     <h1>POLÍCIA MAIS FORTE</h1>
                     <p>SISTEMA DE ESCALA</p>
