@@ -4,6 +4,9 @@
  * including calendar display, schedule management, and user interactions.
  */
 
+// Verificar se o Firebase está disponível 
+const isFirebaseAvailable = typeof firebase !== 'undefined' && firebase.database;
+
 // Application state
 const state = {
     militaries: [],           // Array of military personnel
@@ -82,37 +85,71 @@ function initializeApp() {
  */
 function loadData() {
     console.log('Loading data...');
-
-    // Load directly from localStorage first
-    const localMilitaries = localStorage.getItem('militaries');
-    const localSchedules = localStorage.getItem('schedules');
     
-    if (localMilitaries) {
-        try {
-            state.militaries = JSON.parse(localMilitaries);
-        } catch (e) {
-            console.error('Error parsing militaries from localStorage:', e);
-            state.militaries = [];
+    try {
+        // Tentar carregar do Firebase primeiro
+        if (isFirebaseAvailable) {
+            console.log('Trying to load data from Firebase...');
+            return Promise.all([
+                loadMilitaries(),
+                loadSchedules()
+            ]).then(([militaries, schedules]) => {
+                state.militaries = militaries || [];
+                state.schedules = schedules || {};
+                
+                // Atualizar o localStorage com os dados do Firebase
+                localStorage.setItem('militaries', JSON.stringify(state.militaries));
+                localStorage.setItem('schedules', JSON.stringify(state.schedules));
+                
+                console.log('Data loaded from Firebase:', state.militaries.length, 'militaries,', 
+                    Object.keys(state.schedules).length, 'schedules');
+                
+                return true;
+            }).catch(error => {
+                console.error('Error loading from Firebase:', error);
+                return loadFromLocalStorage();
+            });
+        } else {
+            return loadFromLocalStorage();
         }
+    } catch (error) {
+        console.error('Error in loadData:', error);
+        return loadFromLocalStorage();
     }
     
-    if (localSchedules) {
-        try {
-            state.schedules = JSON.parse(localSchedules);
-        } catch (e) {
-            console.error('Error parsing schedules from localStorage:', e);
-            state.schedules = {};
+    // Função auxiliar para carregar do localStorage
+    function loadFromLocalStorage() {
+        console.log('Loading from localStorage...');
+        // Load directly from localStorage
+        const localMilitaries = localStorage.getItem('militaries');
+        const localSchedules = localStorage.getItem('schedules');
+        
+        if (localMilitaries) {
+            try {
+                state.militaries = JSON.parse(localMilitaries);
+            } catch (e) {
+                console.error('Error parsing militaries from localStorage:', e);
+                state.militaries = [];
+            }
         }
+        
+        if (localSchedules) {
+            try {
+                state.schedules = JSON.parse(localSchedules);
+            } catch (e) {
+                console.error('Error parsing schedules from localStorage:', e);
+                state.schedules = {};
+            }
+        }
+        
+        // If no data in localStorage, initialize sample data
+        if (!state.militaries || state.militaries.length === 0) {
+            console.log('No data found, initializing sample data');
+            initializeSampleData();
+        }
+        
+        return Promise.resolve();
     }
-    
-    // If no data in localStorage, initialize sample data
-    if (!state.militaries || state.militaries.length === 0) {
-        console.log('No data found, initializing sample data');
-        initializeSampleData();
-    }
-    
-    // Return immediately to avoid loading delays
-    return Promise.resolve();
 }
 
 /**
@@ -868,86 +905,95 @@ function addMilitaryToSchedule(dateString) {
         return;
     }
     
-    // Check officer limit
-    if (military.rank.includes('CAP') || military.rank.includes('TEN')) {
-        const currentOfficers = state.schedules[dateString] 
-            ? state.schedules[dateString].filter(s => {
-                const m = getMilitaryById(s.id);
-                return m && (m.rank.includes('CAP') || m.rank.includes('TEN'));
-            }).length 
-            : 0;
-        
-        if (currentOfficers >= MAX_OFFICERS_PER_DAY) {
-            showScheduleError(`Máximo de ${MAX_OFFICERS_PER_DAY} oficiais por dia atingido!`);
-            return;
-        }
-    }
-    
-    // Check monthly limit
-    const monthString = dateString.substring(0, 7); // YYYY-MM format
-    const scheduleCount = countMilitarySchedulesInMonth(militaryId, monthString);
-    
-    if (scheduleCount >= MAX_EXTRA_SHIFTS) {
-        showScheduleError(`Este militar já atingiu o limite de ${MAX_EXTRA_SHIFTS} escalas extras no mês!`);
-        return;
-    }
-    
-    // Verificar se o militar está na equipe de serviço do dia (CONFLITO!)
+    // Get date from string
     const date = new Date(dateString);
+    
+    // Check for team on duty
     const dutyTeam = getDutyTeam(date);
-    let hasConflict = false;
+    const isSameTeam = military.team === dutyTeam;
+    const isOnScheduledDay = date.getDay() === 4; // Thursday (day of schedule rotation)
     
-    if (military.team === dutyTeam) {
-        hasConflict = true;
-        
-        // Exibir alerta sobre o conflito
-        if (confirm(`ATENÇÃO: ${military.rank} ${military.name} é da equipe ${dutyTeam} que está de serviço neste dia!\nO militar será registrado na página de Conflitos. Deseja continuar?`)) {
-            // Usuário confirmou, continuar com a adição
-            console.log('Conflict acknowledged, continuing with scheduling');
-        } else {
-            // Usuário cancelou, interromper a operação
-            console.log('Scheduling canceled due to conflict');
-            return;
-        }
-    }
+    console.log('Duty team:', dutyTeam, 'Military team:', military.team, 'Is Thursday:', isOnScheduledDay);
     
-    // Add military to schedule com flag de conflito
+    // Init schedules array if not exists
     if (!state.schedules[dateString]) {
         state.schedules[dateString] = [];
     }
     
-    state.schedules[dateString].push({ 
-        id: militaryId,
-        hasConflict: hasConflict
-    });
+    // Check for conflicts
+    let hasConflict = false;
+    let conflictMessage = '';
     
-    console.log('Military added to schedule:', military.rank, military.name, 'on', dateString, hasConflict ? '(CONFLICT!)' : '');
+    // Check if already at max
+    if (state.schedules[dateString].length >= MAX_OFFICERS_PER_DAY) {
+        conflictMessage = `Não é possível escalar mais de ${MAX_OFFICERS_PER_DAY} militares por dia.`;
+    }
+    // Check if from team on duty or scheduled day rotation
+    else if (isSameTeam) {
+        hasConflict = true;
+        conflictMessage = `Atenção! O ${military.rank} ${military.name} é da equipe ${military.team} que está de serviço neste dia. Deseja continuar mesmo assim?`;
+    }
+    // Check if military already has maximum allowed schedules
+    else if (countMilitarySchedules(militaryId) >= MAX_EXTRA_SHIFTS) {
+        hasConflict = true;
+        conflictMessage = `Atenção! O ${military.rank} ${military.name} já possui ${MAX_EXTRA_SHIFTS} escalas extras neste mês. Deseja continuar mesmo assim?`;
+    }
     
-    // Save to localStorage
+    // If there's a conflict that requires confirmation
+    if (hasConflict) {
+        if (confirm(conflictMessage)) {
+            // Add to schedule with conflict flag
+            state.schedules[dateString].push({ 
+                id: militaryId,
+                hasConflict: true 
+            });
+            
+            // Save to localStorage for fallback
+            localStorage.setItem('schedules', JSON.stringify(state.schedules));
+            
+            // Save to Firebase if available
+            if (isFirebaseAvailable) {
+                saveSchedules(state.schedules)
+                    .then(() => {
+                        console.log('Schedule with conflict saved to Firebase:', dateString, militaryId);
+                    })
+                    .catch(error => {
+                        console.error('Error saving schedule to Firebase:', error);
+                    });
+            }
+            
+            // Update UI
+            updateScheduleUI(dateString);
+        }
+        return;
+    }
+    // If there's a blocking error
+    else if (conflictMessage) {
+        showScheduleError(conflictMessage);
+        return;
+    }
+    
+    // Add to schedule
+    state.schedules[dateString].push({ id: militaryId });
+    
+    // Save to localStorage for fallback
     localStorage.setItem('schedules', JSON.stringify(state.schedules));
     
+    // Save to Firebase if available
+    if (isFirebaseAvailable) {
+        saveSchedules(state.schedules)
+            .then(() => {
+                console.log('Schedule saved to Firebase:', dateString, militaryId);
+            })
+            .catch(error => {
+                console.error('Error saving schedule to Firebase:', error);
+            });
+    }
+    
     // Update UI
-    const scheduledList = document.getElementById('scheduledMilitariesList');
-    if (scheduledList) {
-        scheduledList.innerHTML = generateScheduledMilitaryList(state.schedules[dateString]);
-        setupRemoveMilitaryButtons(dateString);
-    }
+    updateScheduleUI(dateString);
     
-    // Update military select
-    const selectElement = document.getElementById('militarySelect');
-    if (selectElement) {
-        selectElement.innerHTML = generateMilitaryOptions(
-            getDutyTeam(date),
-            state.schedules[dateString]
-        );
-    }
-    
-    // Update calendar and stats
-    generateCalendar();
-    updateTeamStats();
-    
-    // Show success message
-    showSuccessMessage(`Militar escalado com sucesso!${hasConflict ? ' (Conflito registrado)' : ''}`);
+    console.log('Military added to schedule:', dateString, military.rank, military.name);
 }
 
 /**
@@ -958,46 +1004,69 @@ function removeMilitaryFromSchedule(dateString, militaryId) {
         return;
     }
     
+    // Find military
     const military = getMilitaryById(militaryId);
     
-    if (military) {
-        console.log('Removing military from schedule:', military.rank, military.name, 'on', dateString);
-    }
-    
-    // Remove military from schedule
+    // Remove from schedule
     state.schedules[dateString] = state.schedules[dateString].filter(s => s.id !== militaryId);
     
-    // Remove empty dates
+    // Remove date if no more militaries
     if (state.schedules[dateString].length === 0) {
         delete state.schedules[dateString];
     }
     
-    // Save to localStorage
+    // Save to localStorage for fallback
     localStorage.setItem('schedules', JSON.stringify(state.schedules));
     
-    // Update UI
+    // Save to Firebase if available
+    if (isFirebaseAvailable) {
+        saveSchedules(state.schedules)
+            .then(() => {
+                console.log('Schedule updated in Firebase after removal:', dateString, militaryId);
+            })
+            .catch(error => {
+                console.error('Error updating schedule in Firebase:', error);
+            });
+    }
+    
+    // Update calendar
+    generateCalendar();
+    
+    // Update UI in modal if open
+    updateScheduleUI(dateString);
+    
+    if (military) {
+        console.log('Military removed from schedule:', dateString, military.rank, military.name);
+    }
+}
+
+/**
+ * Helper function to update schedule UI
+ */
+function updateScheduleUI(dateString) {
+    // Update scheduled militaries list
     const scheduledList = document.getElementById('scheduledMilitariesList');
     if (scheduledList) {
-        scheduledList.innerHTML = generateScheduledMilitaryList(state.schedules[dateString] || []);
+        const scheduledMilitaries = state.schedules[dateString] || [];
+        scheduledList.innerHTML = generateScheduledMilitaryList(scheduledMilitaries);
         setupRemoveMilitaryButtons(dateString);
     }
+
+    // Regenerate dropdown of available militaries
+    const militarySelect = document.getElementById('militarySelect');
+    const date = new Date(dateString);
+    const dutyTeam = getDutyTeam(date);
+    const scheduledMilitaries = state.schedules[dateString] || [];
     
-    // Update military select
-    const selectElement = document.getElementById('militarySelect');
-    if (selectElement) {
-        const date = new Date(dateString);
-        selectElement.innerHTML = generateMilitaryOptions(
-            getDutyTeam(date),
-            state.schedules[dateString] || []
-        );
+    if (militarySelect) {
+        militarySelect.innerHTML = generateMilitaryOptions(dutyTeam, scheduledMilitaries);
     }
     
-    // Update calendar and stats
+    // Update calendar
     generateCalendar();
-    updateTeamStats();
     
-    // Show success message
-    showSuccessMessage('Militar removido com sucesso!');
+    // Update team stats
+    updateTeamStats();
 }
 
 /**
@@ -1948,8 +2017,19 @@ function addMilitary(rank, name, team) {
     
     state.militaries.push(newMilitary);
     
-    // Save to localStorage
+    // Save to localStorage for fallback
     localStorage.setItem('militaries', JSON.stringify(state.militaries));
+    
+    // Save to Firebase if available
+    if (isFirebaseAvailable) {
+        saveMilitaries(state.militaries)
+            .then(() => {
+                console.log('Military saved to Firebase:', rank, name, team);
+            })
+            .catch(error => {
+                console.error('Error saving military to Firebase:', error);
+            });
+    }
     
     console.log('Military added:', rank, name, team);
     
@@ -2009,8 +2089,19 @@ function updateMilitary(id, data) {
     if (index !== -1) {
         state.militaries[index] = { ...state.militaries[index], ...data };
         
-        // Save to localStorage
+        // Save to localStorage for fallback
         localStorage.setItem('militaries', JSON.stringify(state.militaries));
+        
+        // Save to Firebase if available
+        if (isFirebaseAvailable) {
+            saveMilitaries(state.militaries)
+                .then(() => {
+                    console.log('Military updated in Firebase:', id, data);
+                })
+                .catch(error => {
+                    console.error('Error updating military in Firebase:', error);
+                });
+        }
         
         console.log('Military updated:', id, data);
         
@@ -2081,9 +2172,23 @@ function deleteMilitary(id) {
         }
     }
     
-    // Save to localStorage
+    // Save to localStorage for fallback
     localStorage.setItem('militaries', JSON.stringify(state.militaries));
     localStorage.setItem('schedules', JSON.stringify(state.schedules));
+    
+    // Save to Firebase if available
+    if (isFirebaseAvailable) {
+        Promise.all([
+            saveMilitaries(state.militaries),
+            saveSchedules(state.schedules)
+        ])
+            .then(() => {
+                console.log('Military and schedules updated in Firebase after deletion');
+            })
+            .catch(error => {
+                console.error('Error updating Firebase after military deletion:', error);
+            });
+    }
     
     return true;
 }
