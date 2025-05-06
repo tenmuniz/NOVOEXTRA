@@ -3183,3 +3183,62 @@ function setupMilitaryManagementModal() {
     
     console.log('Modal de gerenciamento de militares configurado com sucesso');
 }
+
+/**
+ * Generate military list for management
+ */
+function generateMilitaryList() {
+    if (state.militaries.length === 0) {
+        return '<div class="no-data">Nenhum militar cadastrado.</div>';
+    }
+    
+    return state.militaries.map(m => `
+        <div class="military-item" data-id="${m.id}">
+            <div class="military-avatar ${m.team.toLowerCase()}-bg">
+                ${m.name.charAt(0)}
+            </div>
+            <div class="military-info">
+                <div class="military-name">${m.rank} ${m.name}</div>
+                <div class="military-team ${m.team.toLowerCase()}-text">${m.team}</div>
+            </div>
+            <div class="military-actions">
+                <button class="btn btn-secondary edit-military-btn" data-id="${m.id}">
+                    <i class="fas fa-edit"></i>
+                </button>
+                <button class="btn btn-danger delete-military-btn" data-id="${m.id}">
+                    <i class="fas fa-trash"></i>
+                </button>
+            </div>
+        </div>
+    `).join('');
+}
+
+/**
+ * Setup military management tabs
+ */
+function setupMilitaryManagementTabs(modal) {
+    const tabs = modal.querySelectorAll('.management-tab');
+    
+    tabs.forEach(tab => {
+        tab.addEventListener('click', function() {
+            // Remove active class from all tabs
+            tabs.forEach(t => t.classList.remove('active'));
+            
+            // Add active class to clicked tab
+            this.classList.add('active');
+            
+            // Get tab id
+            const tabId = this.getAttribute('data-tab');
+            
+            // Hide all tab contents
+            const tabContents = modal.querySelectorAll('.management-tab-content');
+            tabContents.forEach(content => content.classList.remove('active'));
+            
+            // Show selected tab content
+            const selectedContent = modal.querySelector(`#${tabId}`);
+            if (selectedContent) {
+                selectedContent.classList.add('active');
+            }
+        });
+    });
+}
