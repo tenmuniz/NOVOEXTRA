@@ -1883,90 +1883,64 @@ function generateMilitaryTableRows(filter = '') {
  * Show military management modal
  */
 function showMilitaryManagement(editMilitary = null) {
-    console.log('Mostrando modal de gerenciamento de militares', editMilitary ? 'para edição' : 'para listagem');
+    console.log('Abrindo modal de gerenciamento de militares');
     
     const modal = document.getElementById('militaryManagementModal');
-    
     if (!modal) {
-        console.error('Modal de gerenciamento de militares não encontrado');
+        console.error('Modal não encontrado');
         return;
     }
     
-    // Set modal title and subtitle
+    // Reset the modal to default state
     const modalTitle = modal.querySelector('.modal-title');
-    const modalSubtitle = modal.querySelector('.modal-subtitle');
-    
     if (modalTitle) {
-        modalTitle.textContent = editMilitary ? 'Editar Militar' : 'Gerenciamento de Militares';
+        modalTitle.textContent = 'Gerenciamento de Militares';
     }
     
+    const modalSubtitle = modal.querySelector('.modal-subtitle');
     if (modalSubtitle) {
-        modalSubtitle.textContent = editMilitary 
-            ? `Editando: ${editMilitary.rank} ${editMilitary.name}` 
-            : 'Adicionar, Editar ou Excluir';
+        modalSubtitle.textContent = '';
     }
     
-    // Add content to the modal
     const contentArea = modal.querySelector('.military-management-content');
-    if (contentArea) {
-        if (editMilitary) {
-            // Show edit form
-            contentArea.innerHTML = generateEditMilitaryForm(editMilitary);
-            
-            // Setup edit form
-            const editForm = document.getElementById('editMilitaryForm');
-            if (editForm) {
-                editForm.addEventListener('submit', function(e) {
-                    e.preventDefault();
-                    updateMilitaryHandler();
-                });
-            }
-            
-            // Setup cancel button
-            const cancelBtn = document.getElementById('cancelEditBtn');
-            if (cancelBtn) {
-                cancelBtn.addEventListener('click', function() {
-                    // Return to military management
-                    contentArea.innerHTML = generateMilitaryManagementContent();
-                    
-                    // Reset modal title
-                    if (modalTitle) {
-                        modalTitle.textContent = 'Gerenciamento de Militares';
-                    }
-                    
-                    if (modalSubtitle) {
-                        modalSubtitle.textContent = 'Adicionar, Editar ou Excluir';
-                    }
-                    
-                    // Setup tabs and actions
-                    setupMilitaryManagementTabs(modal);
-                    setupMilitaryItemActions(modal);
-                });
-            }
-        } else {
-            // Show military management content
-            contentArea.innerHTML = generateMilitaryManagementContent();
-            
-            // Setup tabs
-            setupMilitaryManagementTabs(modal);
-            
-            // Setup actions for military items
-            setupMilitaryItemActions(modal);
-            
-            // Setup add form submission
-            const addForm = document.getElementById('addMilitaryForm');
-            if (addForm) {
-                // Remove existing event listeners
-                const newForm = addForm.cloneNode(true);
-                addForm.parentNode.replaceChild(newForm, addForm);
-                
-                // Add new event listener
-                newForm.addEventListener('submit', function(e) {
-                    e.preventDefault();
-                    addMilitaryHandler();
-                });
-            }
-        }
+    if (!contentArea) {
+        console.error('Área de conteúdo do modal não encontrada');
+        return;
+    }
+    
+    // Generate the management content
+    contentArea.innerHTML = generateMilitaryManagementContent();
+    
+    // Setup the tabs
+    setupMilitaryManagementTabs(modal);
+    
+    // Setup the add form
+    const addForm = document.getElementById('addMilitaryForm');
+    if (addForm) {
+        // Remove any existing event listeners
+        const newAddForm = addForm.cloneNode(true);
+        addForm.parentNode.replaceChild(newAddForm, addForm);
+        
+        // Set up the form with a new event listener
+        newAddForm.addEventListener('submit', function(e) {
+            e.preventDefault(); // Impedir o comportamento padrão do formulário
+            console.log('Formulário de adição de militar enviado');
+            addMilitaryHandler();
+            return false;
+        });
+    } else {
+        console.error('Formulário de adição não encontrado');
+    }
+    
+    // Setup military search
+    setupMilitarySearch();
+    
+    // Setup military item actions (edit, delete)
+    setupMilitaryItemActions(modal);
+    
+    // If we have a military to edit, show the edit form
+    if (editMilitary) {
+        showEditFormHandler(editMilitary);
     }
     
     // Show the modal
@@ -2169,55 +2143,9 @@ function showEditFormHandler(event) {
         if (editForm) {
             editForm.addEventListener('submit', function(e) {
                 e.preventDefault();
-                
-                const id = document.getElementById('editId').value;
-                const rank = document.getElementById('editRank').value;
-                const name = document.getElementById('editName').value;
-                const team = document.getElementById('editTeam').value;
-                
-                if (id && rank && name && team) {
-                    const oldMilitary = getMilitaryById(id);
-                    const updatedMilitary = updateMilitary(id, { rank, name, team });
-                    
-                    if (updatedMilitary) {
-                        // Show success message
-                        const successElement = document.getElementById('editSuccess');
-                        if (successElement) {
-                            successElement.style.display = 'block';
-                            
-                            // Provide more specific message if team changed
-                            if (oldMilitary && oldMilitary.team !== team) {
-                                successElement.textContent = `Militar transferido da GU ${oldMilitary.team} para a GU ${team} com sucesso!`;
-                            } else {
-                                successElement.textContent = 'Militar atualizado com sucesso!';
-                            }
-                            
-                            // Return to the list view after a delay
-                            setTimeout(() => {
-                                // Reset content to military management
-                                contentArea.innerHTML = generateMilitaryManagementContent();
-                                
-                                // Reset modal title
-                                if (modalTitle) {
-                                    modalTitle.textContent = 'Gerenciamento de Militares';
-                                }
-                                
-                                if (modalSubtitle) {
-                                    modalSubtitle.textContent = 'Adicionar, Editar ou Excluir';
-                                }
-                                
-                                // Setup tabs and actions
-                                setupMilitaryManagementTabs(modal);
-                                setupMilitaryItemActions(modal);
-                                
-                                // Update UI elements
-                                populateMilitarySelects();
-                                generateCalendar();
-                                updateTeamStats();
-                            }, 1500);
-                        }
-                    }
-                }
+                console.log('Formulário de edição de militar enviado');
+                updateMilitaryHandler();
+                return false;
             });
         }
         
@@ -2225,21 +2153,7 @@ function showEditFormHandler(event) {
         const cancelBtn = document.getElementById('cancelEditBtn');
         if (cancelBtn) {
             cancelBtn.addEventListener('click', function() {
-                // Return to military management
-                contentArea.innerHTML = generateMilitaryManagementContent();
-                
-                // Reset modal title
-                if (modalTitle) {
-                    modalTitle.textContent = 'Gerenciamento de Militares';
-                }
-                
-                if (modalSubtitle) {
-                    modalSubtitle.textContent = 'Adicionar, Editar ou Excluir';
-                }
-                
-                // Setup tabs and actions
-                setupMilitaryManagementTabs(modal);
-                setupMilitaryItemActions(modal);
+                showMilitaryManagement();
             });
         }
     }
@@ -2667,74 +2581,117 @@ function updateMilitary(id, data) {
  * Handler for the updateMilitary form submission
  */
 function updateMilitaryHandler() {
+    console.log('Iniciando processo de atualização de militar');
+    
     const idElement = document.getElementById('editId');
     const rankElement = document.getElementById('editRank');
     const nameElement = document.getElementById('editName');
     const teamElement = document.getElementById('editTeam');
     
-    if (idElement && rankElement && nameElement && teamElement) {
-        const id = idElement.value;
-        const rank = rankElement.value.trim();
-        const name = nameElement.value.trim();
-        const team = teamElement.value;
+    if (!idElement || !rankElement || !nameElement || !teamElement) {
+        console.error('Elementos do formulário não encontrados', { 
+            idElement: !!idElement,
+            rankElement: !!rankElement, 
+            nameElement: !!nameElement, 
+            teamElement: !!teamElement 
+        });
+        showError('Erro ao atualizar militar: formulário inválido.');
+        return false;
+    }
+    
+    const id = idElement.value;
+    const rank = rankElement.value.trim();
+    const name = nameElement.value.trim();
+    const team = teamElement.value;
+    
+    console.log('Dados do formulário de edição:', { id, rank, name, team });
+    
+    if (!id || !rank || !name || !team) {
+        showError('Por favor, preencha todos os campos.');
+        return false;
+    }
+    
+    try {
+        const oldMilitary = getMilitaryById(id);
+        const updatedMilitary = updateMilitary(id, { rank, name, team });
         
-        if (id && rank && name && team) {
-            const oldMilitary = getMilitaryById(id);
-            const updatedMilitary = updateMilitary(id, { rank, name, team });
-            
-            if (updatedMilitary) {
-                // Show success message
-                const successElement = document.getElementById('editSuccess');
-                if (successElement) {
-                    successElement.style.display = 'block';
+        if (updatedMilitary) {
+            // Mostrar mensagem de sucesso
+            const successElement = document.getElementById('editSuccess');
+            if (successElement) {
+                successElement.style.display = 'block';
+                
+                // Fornecer mensagem mais específica se a equipe mudou
+                if (oldMilitary && oldMilitary.team !== team) {
+                    successElement.textContent = `Militar transferido da GU ${oldMilitary.team} para a GU ${team} com sucesso!`;
+                } else {
+                    successElement.textContent = 'Militar atualizado com sucesso!';
+                }
+                
+                setTimeout(() => {
+                    successElement.style.display = 'none';
                     
-                    // Provide more specific message if team changed
-                    if (oldMilitary && oldMilitary.team !== team) {
-                        successElement.textContent = `Militar transferido da GU ${oldMilitary.team} para a GU ${team} com sucesso!`;
-                    } else {
-                        successElement.textContent = 'Militar atualizado com sucesso!';
-                    }
+                    // Retornar à visualização de lista após o sucesso
+                    const modal = document.getElementById('militaryManagementModal');
                     
-                    setTimeout(() => {
-                        successElement.style.display = 'none';
+                    if (modal) {
+                        // Reset modal title and subtitle
+                        const modalTitle = modal.querySelector('.modal-title');
+                        if (modalTitle) {
+                            modalTitle.textContent = 'Gerenciamento de Militares';
+                        }
                         
-                        // Return to the list view after success
-                        const modal = document.getElementById('militaryManagementModal');
-                        const contentArea = modal?.querySelector('.military-management-content');
+                        const modalSubtitle = modal.querySelector('.modal-subtitle');
+                        if (modalSubtitle) {
+                            modalSubtitle.textContent = '';
+                        }
                         
+                        // Reset content to military management
+                        const contentArea = modal.querySelector('.military-management-content');
                         if (contentArea) {
-                            // Reset content to military management
                             contentArea.innerHTML = generateMilitaryManagementContent();
-                            
-                            // Reset modal title
-                            const modalTitle = modal.querySelector('.modal-title');
-                            if (modalTitle) {
-                                modalTitle.textContent = 'Gerenciamento de Militares';
-                            }
-                            
-                            const modalSubtitle = modal.querySelector('.modal-subtitle');
-                            if (modalSubtitle) {
-                                modalSubtitle.textContent = 'Adicionar, Editar ou Excluir';
-                            }
                             
                             // Setup tabs and actions
                             setupMilitaryManagementTabs(modal);
                             setupMilitaryItemActions(modal);
+                            
+                            // Setup add form submission
+                            const addForm = document.getElementById('addMilitaryForm');
+                            if (addForm) {
+                                // Remove existing event listeners
+                                const newForm = addForm.cloneNode(true);
+                                addForm.parentNode.replaceChild(newForm, addForm);
+                                
+                                // Add new event listener
+                                newForm.addEventListener('submit', function(e) {
+                                    e.preventDefault();
+                                    addMilitaryHandler();
+                                    return false;
+                                });
+                            }
+                            
+                            // Setup military search
+                            setupMilitarySearch();
                         }
-                    }, 1500);
-                }
-                
-                // Update calendar and stats
-                populateMilitarySelects();
-                generateCalendar();
-                updateTeamStats();
+                    }
+                }, 1500);
             }
             
-            return false; // Prevent form submission
+            // Atualizar dropdowns, calendário e estatísticas
+            populateMilitarySelects();
+            generateCalendar();
+            updateTeamStats();
+            
+            return true;
+        } else {
+            showError('Falha ao atualizar militar. Tente novamente.');
+            return false;
         }
+    } catch (error) {
+        console.error('Erro ao atualizar militar:', error);
+        showError(`Erro ao atualizar militar: ${error.message}`);
+        return false;
     }
-    
-    return false; // Prevent form submission
 }
 
 /**
