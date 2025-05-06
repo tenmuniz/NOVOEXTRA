@@ -3097,21 +3097,13 @@ function hideLoadingScreen() {
  * Initialize sample data
  */
 function initializeSampleData() {
-    // Sample militaries
-    const sampleMilitaries = [
-        { id: 'mil_1', rank: 'CAP', name: 'SILVA', team: 'ALFA' },
-        { id: 'mil_2', rank: 'TEN', name: 'OLIVEIRA', team: 'ALFA' },
-        { id: 'mil_3', rank: 'SGT', name: 'PEREIRA', team: 'BRAVO' },
-        { id: 'mil_4', rank: 'SGT', name: 'SANTOS', team: 'BRAVO' },
-        { id: 'mil_5', rank: 'CB', name: 'RODRIGUES', team: 'CHARLIE' },
-        { id: 'mil_6', rank: 'CB', name: 'ALMEIDA', team: 'CHARLIE' },
-        { id: 'mil_7', rank: 'SD', name: 'FERREIRA', team: 'EXPEDIENTE' }
-    ];
+    // Array vazio para militares
+    const sampleMilitaries = [];
     
     state.militaries = sampleMilitaries;
     localStorage.setItem('militaries', JSON.stringify(sampleMilitaries));
     
-    console.log('Sample data initialized');
+    console.log('Dados inicializados com array vazio de militares');
 }
 
 /**
