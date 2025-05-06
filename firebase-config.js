@@ -1,12 +1,12 @@
 // Firebase configuration - Updated with new credentials
 const firebaseConfig = {
-  apiKey: "AIzaSyAEAaKTimREDnZdMZaEqeIErW1Vg8n_GGw",
-  authDomain: "sistema-meritocracia-20cipm.firebaseapp.com",
-  projectId: "sistema-meritocracia-20cipm",
-  storageBucket: "sistema-meritocracia-20cipm.firebasestorage.app",
-  messagingSenderId: "1096372826283",
-  appId: "1:1096372826283:web:4063f556935788c57c87ee",
-  databaseURL: "https://sistema-meritocracia-20cipm-default-rtdb.firebaseio.com" // URL do Realtime Database
+  apiKey: "AIzaSyAorbz8PzwQH-ieYjfcQMdePPx0h5o9eto",
+  authDomain: "extranew-8d885.firebaseapp.com",
+  databaseURL: "https://extranew-8d885-default-rtdb.firebaseio.com",
+  projectId: "extranew-8d885",
+  storageBucket: "extranew-8d885.firebasestorage.app",
+  messagingSenderId: "992132989313",
+  appId: "1:992132989313:web:f70a711cd6b335234ea880"
 };
 
 // Fallback mechanism variables
