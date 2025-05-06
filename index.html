@@ -1219,6 +1219,85 @@
             0% { transform: translate(0, 0) rotate(0deg); }
             100% { transform: translate(30px, 30px) rotate(60deg); }
         }
+
+        /* Estilos para o modal de confirmação de exclusão */
+        .delete-confirmation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+        }
+        
+        .delete-confirmation .modal-content {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            max-width: 500px;
+            width: 90%;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .delete-confirmation h2 {
+            color: var(--dark-color);
+            margin-bottom: 15px;
+        }
+        
+        .delete-confirmation p {
+            margin-bottom: 20px;
+        }
+        
+        .delete-confirmation .button-group {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        .delete-confirmation .alert-warning {
+            background-color: var(--warning-color);
+            opacity: 0.8;
+            color: white;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+        }
+        
+        .delete-confirmation .alert-warning ul {
+            margin-left: 20px;
+            margin-top: 5px;
+        }
+        
+        /* Estilos para filtragem de militares */
+        .filter-controls {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .filter-controls label {
+            white-space: nowrap;
+        }
+        
+        .filter-controls select {
+            flex: 1;
+        }
+        
+        /* Estilos para alertas de sucesso */
+        .alert-success {
+            background-color: var(--success-color);
+            color: white;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+            text-align: center;
+        }
     </style>
 </head>
 <body>
@@ -1690,26 +1769,43 @@
                                 <option value="mil_23">SGT PINHEIRO - CHARLIE</option>
                             </select>
                         </div>
-                        <div class="military-info-display" id="militaryToDelete" style="display: none;">
-                            <div class="alert alert-danger">
-                                <i class="fas fa-exclamation-triangle"></i>
-                                Esta ação é irreversível. Todos os dados deste militar serão removidos.
-                            </div>
-                            <div class="military-card" style="margin: 20px 0;">
-                                <div class="military-avatar" id="deleteAvatar"></div>
-                                <div class="military-info">
-                                    <div class="military-name" id="deleteName"></div>
-                                    <div class="military-team" id="deleteTeam"></div>
+                        <div id="militaryToDelete" style="display: none; margin-top: 20px;">
+                            <div style="display: flex; align-items: center; margin-bottom: 15px;">
+                                <div id="deleteAvatar" style="width: 40px; height: 40px; border-radius: 50%; background-color: #e11d48; color: white; display: flex; align-items: center; justify-content: center; margin-right: 10px;">P</div>
+                                <div>
+                                    <div id="deleteName" style="font-weight: bold;">SGT PEIXOTO</div>
+                                    <div id="deleteTeam" style="color: #e11d48;">ALFA</div>
                                 </div>
                             </div>
-                            <button id="confirmDeleteButton" class="btn btn-danger" onclick="deleteMilitary()">
+                            <div class="alert alert-warning">
+                                <i class="fas fa-exclamation-triangle"></i> Atenção: Esta ação não pode ser desfeita e removerá o militar de todas as escalas.
+                            </div>
+                            <button onclick="deleteMilitary()" class="btn btn-danger" style="width: 100%;">
                                 <i class="fas fa-trash"></i> Confirmar Exclusão
                             </button>
-                        </div>
-                        <div id="deleteSuccess" style="display: none; margin-top: 15px;" class="alert alert-success">
-                            <i class="fas fa-check-circle"></i> Militar removido com sucesso!
+                            <div id="deleteSuccess" style="display: none; margin-top: 15px;" class="alert alert-success">
+                                <i class="fas fa-check-circle"></i> Militar excluído com sucesso!
+                            </div>
                         </div>
                     </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Modal for New Military Management -->
+    <div class="modal-overlay" id="militaryManagementModal">
+        <div class="modal" style="max-width: 650px; width: 90%; max-height: 85vh; overflow-y: auto;">
+            <div class="modal-header">
+                <h3 class="modal-title">Gerenciamento de Militares</h3>
+                <div class="modal-subtitle" id="militaryManagementSubtitle">Adicionar, Editar ou Excluir</div>
+                <button class="close-modal" id="closeMilitaryManagementModal">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="military-management-content">
+                    <!-- Will be populated by JavaScript -->
                 </div>
             </div>
         </div>
