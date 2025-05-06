@@ -1,12 +1,12 @@
-// Firebase configuration - Directly from the provided template
+// Firebase configuration - Updated with new credentials
 const firebaseConfig = {
-  apiKey: "AIzaSyAd8l7eco40d4ZUHCXW9GhB4GUuSgc_b7U",
-  authDomain: "youware-f36dc.firebaseapp.com",
-  projectId: "youware-f36dc",
-  storageBucket: "youware-f36dc.firebasestorage.app",
-  messagingSenderId: "889528189033",
-  appId: "1:889528189033:web:c6d1269e1e82507cf4e2f8",
-  databaseURL: "https://youware-f36dc-default-rtdb.firebaseio.com"
+  apiKey: "AIzaSyAEAaKTimREDnZdMZaEqeIErW1Vg8n_GGw",
+  authDomain: "sistema-meritocracia-20cipm.firebaseapp.com",
+  projectId: "sistema-meritocracia-20cipm",
+  storageBucket: "sistema-meritocracia-20cipm.firebasestorage.app",
+  messagingSenderId: "1096372826283",
+  appId: "1:1096372826283:web:4063f556935788c57c87ee",
+  databaseURL: "https://sistema-meritocracia-20cipm-default-rtdb.firebaseio.com" // URL do Realtime Database
 };
 
 // Fallback mechanism variables
