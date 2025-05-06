@@ -1,0 +1,1776 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>POLÍCIA MAIS FORTE - Conflitos de Escala</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #2a3990;
+            --secondary-color: #4f5ff6;
+            --accent-color: #3d67ff;
+            --light-color: #f0f5ff;
+            --dark-color: #1a1f36;
+            --success-color: #22c55e;
+            --warning-color: #f59e0b;
+            --danger-color: #ef4444;
+            --info-color: #3b82f6;
+            
+            /* Modal colors */
+            --modal-header-bg: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            --modal-body-bg: white;
+            
+            /* Team colors from original app */
+            --alfa-dark: #9f1239;
+            --alfa-main: #e11d48;
+            --alfa-light: #fb7185;
+            --alfa-bg: #fff1f2;
+            
+            --bravo-dark: #047857;
+            --bravo-main: #10b981;
+            --bravo-light: #34d399;
+            --bravo-bg: #ecfdf5;
+            
+            --charlie-dark: #1e40af;
+            --charlie-main: #3b82f6;
+            --charlie-light: #60a5fa;
+            --charlie-bg: #eff6ff;
+            
+            --expediente-dark: #b45309;
+            --expediente-main: #f59e0b;
+            --expediente-light: #fbbf24;
+            --expediente-bg: #fffbeb;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+        
+        body {
+            background-color: #f6f8ff;
+            color: var(--dark-color);
+            overflow-x: hidden;
+        }
+        
+        .container {
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            min-height: 100vh;
+        }
+        
+        /* Sidebar Styles */
+        .sidebar {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: #fff;
+            position: relative;
+            transition: all 0.3s ease;
+            padding: 20px;
+            z-index: 10;
+            box-shadow: 5px 0 15px rgba(0, 0, 0, 0.1);
+            clip-path: polygon(0 0, 100% 0, 90% 100%, 0% 100%);
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            padding: 15px 0;
+            margin-bottom: 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .logo img {
+            width: 36px;
+            height: 36px;
+            margin-right: 12px;
+            background: white;
+            border-radius: 8px;
+            padding: 5px;
+        }
+        
+        .logo-text h1 {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: -5px;
+        }
+        
+        .logo-text p {
+            font-size: 11px;
+            opacity: 0.8;
+        }
+        
+        .nav-section {
+            margin-bottom: 25px;
+        }
+        
+        .nav-title {
+            text-transform: uppercase;
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 1px;
+            margin-bottom: 10px;
+            opacity: 0.6;
+        }
+        .nav-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 15px;
+            margin-bottom: 5px;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .nav-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateX(5px);
+        }
+        
+        .nav-item.active {
+            background: rgba(255, 255, 255, 0.2);
+            font-weight: 500;
+        }
+
+        .nav-item.active::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            width: 4px;
+            background: white;
+            border-radius: 0 4px 4px 0;
+        }
+        
+        .nav-item i {
+            margin-right: 12px;
+            font-size: 18px;
+        }
+
+        .badge {
+            position: absolute;
+            right: 15px;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 10px;
+            font-weight: 600;
+            background-color: #4ade80;
+            color: white;
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            margin-top: auto;
+            position: absolute;
+            bottom: 20px;
+            width: calc(100% - 40px);
+        }
+        
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--light-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 12px;
+            color: var(--primary-color);
+            font-weight: 600;
+            font-size: 16px;
+        }
+        
+        .user-info h3 {
+            font-size: 14px;
+            margin-bottom: -2px;
+        }
+        
+        .user-info p {
+            font-size: 11px;
+            opacity: 0.7;
+        }
+        
+        /* Main Content Styles */
+        .main-content {
+            padding: 20px 30px;
+            position: relative;
+        }
+        
+        /* Header */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+            margin-bottom: 30px;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        }
+        
+        .page-title {
+            font-weight: 700;
+            font-size: 28px;
+            color: var(--dark-color);
+            display: flex;
+            align-items: center;
+        }
+
+        .page-title i {
+            margin-right: 12px;
+            background: var(--light-color);
+            padding: 10px;
+            border-radius: 10px;
+            font-size: 22px;
+            color: var(--primary-color);
+        }
+        
+        .header-actions {
+            display: flex;
+            gap: 15px;
+        }
+        
+        .search-box {
+            position: relative;
+        }
+        
+        .search-box input {
+            padding: 12px 20px 12px 45px;
+            border-radius: 30px;
+            border: none;
+            background: var(--light-color);
+            width: 320px;
+            font-size: 14px;
+            outline: none;
+            transition: all 0.3s;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        }
+        
+        .search-box i {
+            position: absolute;
+            left: 18px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: gray;
+        }
+        
+        .header-icons {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+        
+        .header-icon {
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: white;
+            cursor: pointer;
+            position: relative;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+        }
+
+        .header-icon:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+        }
+        
+        .header-icon i {
+            font-size: 18px;
+            color: var(--dark-color);
+        }
+        
+        .notification-dot {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            width: 10px;
+            height: 10px;
+            background: var(--danger-color);
+            border-radius: 50%;
+            border: 2px solid white;
+        }
+        
+        /* Month selector */
+        .month-selector {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: white;
+            border-radius: 15px;
+            padding: 15px 25px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
+            position: relative;
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+
+        .month-selector::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 5px;
+            height: 100%;
+            background: var(--primary-color);
+        }
+
+        .month-label {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .month-label i {
+            font-size: 18px;
+            color: var(--primary-color);
+            background: var(--light-color);
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 10px;
+        }
+
+        .month-text {
+            font-size: 18px;
+            font-weight: 600;
+        }
+        
+        .month-navigation {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .month-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--light-color);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .month-btn:hover {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .year-label {
+            background: var(--light-color);
+            border-radius: 8px;
+            padding: 10px 15px;
+            font-weight: 600;
+            font-size: 14px;
+            color: var(--primary-color);
+        }
+        
+        /* Estilos específicos para a página de conflitos */
+        .conflict-card {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            border-left: 4px solid var(--danger-color);
+            transition: transform 0.3s ease;
+        }
+
+        .conflict-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .conflict-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .conflict-title {
+            font-weight: 600;
+            color: var(--dark-color);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .conflict-title i {
+            color: var(--danger-color);
+        }
+
+        .conflict-date {
+            font-size: 14px;
+            color: #777;
+            background: var(--light-color);
+            padding: 5px 12px;
+            border-radius: 20px;
+        }
+
+        .conflict-type {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            color: white;
+            margin-bottom: 10px;
+            margin-right: 8px;
+        }
+
+        .conflict-type.pmf {
+            background: var(--primary-color);
+        }
+
+        .conflict-type.thursday {
+            background: var(--warning-color);
+        }
+
+        .conflict-militaries {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-top: 15px;
+        }
+
+        .conflict-military {
+            display: flex;
+            align-items: center;
+            padding: 12px;
+            background: var(--light-color);
+            border-radius: 10px;
+            gap: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .conflict-military:hover {
+            background: #eef2ff;
+            transform: translateX(5px);
+        }
+
+        .conflict-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+        }
+
+        .conflict-info {
+            flex: 1;
+        }
+
+        .military-name {
+            font-weight: 600;
+            color: var(--dark-color);
+        }
+
+        .military-team {
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .military-schedule {
+            font-size: 12px;
+            color: #777;
+        }
+
+        .conflict-details {
+            font-size: 14px;
+            line-height: 1.5;
+            color: #555;
+            margin: 10px 0;
+        }
+        
+        .add-hint {
+            margin-top: 8px;
+            font-style: italic;
+            font-size: 13px;
+            color: var(--primary-color);
+            text-align: center;
+        }
+        
+        .add-hint i {
+            margin-right: 5px;
+        }
+
+        .time-range {
+            font-weight: 600;
+            color: var(--dark-color);
+            background: var(--light-color);
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+        }
+        
+        .filter-bar {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            background: white;
+            padding: 15px 20px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.03);
+        }
+        
+        .filter-btn {
+            padding: 10px 15px;
+            border-radius: 30px;
+            border: none;
+            background: var(--light-color);
+            color: var(--dark-color);
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .filter-btn.active {
+            background: var(--primary-color);
+            color: white;
+            box-shadow: 0 5px 15px rgba(42, 57, 144, 0.2);
+        }
+        
+        .filter-btn:hover:not(.active) {
+            background: #e4e9ff;
+        }
+        
+        .no-conflicts {
+            text-align: center;
+            padding: 50px 20px;
+            color: #777;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.03);
+        }
+        
+        .no-conflicts i {
+            font-size: 48px;
+            color: #ddd;
+            margin-bottom: 20px;
+            display: block;
+        }
+        
+        .conflicts-summary {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.03);
+        }
+        
+        .summary-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .summary-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+        
+        .stat-card {
+            background: var(--light-color);
+            padding: 15px;
+            border-radius: 12px;
+            text-align: center;
+        }
+        
+        .stat-number {
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin-bottom: 5px;
+        }
+        
+        .stat-label {
+            font-size: 14px;
+            color: #666;
+        }
+
+        /* Team-specific styles */
+        .alfa-text { color: var(--alfa-main); }
+        .bravo-text { color: var(--bravo-main); }
+        .charlie-text { color: var(--charlie-main); }
+        .expediente-text { color: var(--expediente-main); }
+
+        .alfa-bg { background-color: var(--alfa-bg); }
+        .bravo-bg { background-color: var(--bravo-bg); }
+        .charlie-bg { background-color: var(--charlie-bg); }
+        .expediente-bg { background-color: var(--expediente-bg); }
+        
+        /* Responsive styles */
+        @media (max-width: 768px) {
+            .container {
+                grid-template-columns: 1fr;
+            }
+            
+            .sidebar {
+                display: none;
+            }
+            
+            .filter-bar {
+                overflow-x: auto;
+                padding-bottom: 10px;
+                flex-wrap: nowrap;
+                width: 100%;
+            }
+            
+            .filter-btn {
+                white-space: nowrap;
+            }
+            
+            .header-actions {
+                flex-direction: column;
+            }
+            
+            .search-box input {
+                width: 100%;
+            }
+        }
+    /* Modal Styles */
+    .schedule-modal-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.7);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 9999;
+        opacity: 0;
+        visibility: hidden;
+        transition: all 0.3s ease;
+        backdrop-filter: blur(4px);
+    }
+
+    .schedule-modal-overlay.active {
+        opacity: 1;
+        visibility: visible;
+    }
+
+    .schedule-modal {
+        background: white;
+        border-radius: 20px;
+        overflow: hidden;
+        max-width: 500px;
+        width: 90%;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        transform: translateY(20px);
+        opacity: 0;
+        transition: all 0.3s ease;
+        margin: 20px;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .schedule-modal-overlay.active .schedule-modal {
+        transform: translateY(0);
+        opacity: 1;
+    }
+
+    .schedule-modal-header {
+        background: var(--modal-header-bg);
+        color: white;
+        padding: 20px;
+        position: relative;
+    }
+
+    .schedule-modal-title {
+        font-size: 22px;
+        font-weight: 600;
+        margin-bottom: 5px;
+        padding-right: 30px; /* Space for close button */
+    }
+
+    .schedule-modal-subtitle {
+        font-size: 14px;
+        opacity: 0.8;
+    }
+
+    .close-schedule-modal {
+        position: absolute;
+        right: 20px;
+        top: 20px;
+        background: rgba(255, 255, 255, 0.2);
+        border: none;
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .close-schedule-modal:hover {
+        background: rgba(255, 255, 255, 0.3);
+        transform: rotate(90deg);
+    }
+
+    .schedule-modal-body {
+        padding: 20px;
+        overflow-y: auto;
+        max-height: calc(85vh - 100px); /* Account for header */
+    }
+
+    .schedule-modal-section {
+        margin-bottom: 20px;
+        padding: 20px;
+        background: #f9fafc;
+        border-radius: 12px;
+        box-shadow: 0 3px 10px rgba(0,0,0,0.03);
+    }
+
+    .schedule-error {
+        display: none;
+        background: #fee2e2;
+        color: #b91c1c;
+        padding: 12px;
+        border-radius: 8px;
+        margin-bottom: 15px;
+        align-items: center;
+        gap: 10px;
+    }
+    </style>
+</head>
+<body>
+    <!-- Schedule Modal -->
+    <div class="schedule-modal-overlay" id="scheduleModal">
+        <div class="schedule-modal">
+            <div class="schedule-modal-header">
+                <h3 class="schedule-modal-title">Escalar Militar</h3>
+                <div class="schedule-modal-subtitle" id="selectedDate">Quinta-feira, 12 de Abril de 2023</div>
+                <button class="close-schedule-modal" id="closeScheduleModal">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="schedule-modal-body">
+                <div id="scheduleError" class="schedule-error">
+                    <i class="fas fa-exclamation-circle"></i>
+                    <span>Erro ao escalar militar!</span>
+                </div>
+                
+                <div class="schedule-modal-section">
+                    <h4 class="modal-section-title">
+                        <i class="fas fa-user-plus"></i>
+                        Adicionar Militar
+                    </h4>
+                    <p class="modal-section-subtitle">Escalação para a Operação PMF</p>
+                    <div class="form-group">
+                        <label for="militarySelect" class="form-label">Selecione o Militar:</label>
+                        <select id="militarySelect" class="form-control">
+                            <!-- Will be populated with all available militaries -->
+                        </select>
+                    </div>
+                    <button class="btn btn-primary" id="addMilitaryBtn">
+                        <i class="fas fa-plus"></i> ADICIONAR
+                    </button>
+                </div>
+                
+                <div class="schedule-modal-section">
+                    <h4 class="modal-section-title">
+                        <i class="fas fa-clipboard-list"></i>
+                        Militares Escalados
+                    </h4>
+                    <div id="scheduledMilitariesList">
+                        <!-- Will be populated with scheduled militaries -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="logo">
+                <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCI+PHBhdGggZmlsbD0iIzJhMzk5MCIgZD0iTTE5LDEzSDVWMTFIMTlWMTNNMTkuMDksNy41SDRON1Y4LjVIMTlWNy41TTEzLDIxLjVoLTJWMjBoMlYyMS41Ek0xNSwxOWg2djEuNUgxNVYxOU03LDEVITU0VjQuNUgxNVY2SDcuNXY0LjVIOXYzSDdMNyw2SDYuNVY0LjVINHYybC0xLjVsMFYxOQoJQzIuNSwyMC4zMzMsMy4xNjcsMjEsMy44MzQsMjFoMTYuMzMyYzAuNjY3LDAsMS4zMzMtMC42NjcsMS4zMzQtMS42NjdsLTAuMDAyLTEzLjVoLTEuNEwxOSw5LjVoLTR2LTdINi41VjdINHYtSyIvPjwvc3ZnPg==">
+                <div class="logo-text">
+                    <h1>POLÍCIA MAIS FORTE</h1>
+                    <p>SISTEMA DE ESCALA</p>
+                </div>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-title">Principal</div>
+                <div class="nav-item" id="dashboard-nav">
+                    <i class="fas fa-chart-pie"></i>
+                    Dashboard
+                </div>
+                <div class="nav-item" id="escalas-nav">
+                    <i class="fas fa-calendar-alt"></i>
+                    Escalas
+                </div>
+                <div class="nav-item" id="guarnicoes-nav">
+                    <i class="fas fa-users"></i>
+                    Guarnições
+                </div>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-title">Gerenciamento</div>
+                <div class="nav-item" id="cadastro-nav" onclick="showMilitaryManagement()">
+                    <i class="fas fa-user-plus"></i>
+                    Cadastro
+                </div>
+                <a href="relatorios.html" style="text-decoration: none; color: inherit;">
+                    <div class="nav-item" id="relatorios-nav">
+                        <i class="fas fa-file-alt"></i>
+                        Relatórios
+                    </div>
+                </a>
+                <a href="index.html" style="text-decoration: none; color: inherit;">
+                    <div class="nav-item">
+                        <i class="fas fa-calendar-alt"></i>
+                        Escalas
+                    </div>
+                </a>
+                <div class="nav-item active" id="conflitos-nav">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    Conflitos
+                    <span class="badge">Novo</span>
+                </div>
+            </div>
+
+            <div class="user-profile">
+                <div class="user-avatar">CS</div>
+                <div class="user-info">
+                    <h3>Comandante Silva</h3>
+                    <p>ADMINISTRADOR</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Background Elements -->
+            <div class="loader-circle"></div>
+            <div class="loader-circle"></div>
+            
+            <!-- Header -->
+            <div class="header">
+                <div class="page-title">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    Conflitos de Escala
+                </div>
+                <div class="header-actions">
+                    <div class="search-box">
+                        <i class="fas fa-search"></i>
+                        <input type="text" id="search-conflicts" placeholder="Buscar militar...">
+                    </div>
+                    <div class="header-icons">
+                        <div class="header-icon" id="notifications-btn">
+                            <i class="far fa-bell"></i>
+                            <div class="notification-dot"></div>
+                        </div>
+                        <div class="header-icon" id="help-btn">
+                            <i class="far fa-question-circle"></i>
+                        </div>
+                        <a href="index.html" class="header-icon">
+                            <i class="fas fa-home"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Dashboard Content -->
+            <div class="dashboard-content">
+                <!-- Month Selector - Reusing from index.html -->
+                <div class="month-selector">
+                    <div class="month-label">
+                        <i class="fas fa-calendar"></i>
+                        <div class="month-text" id="currentMonthYear">Abril 2023</div>
+                    </div>
+                    <div class="month-navigation">
+                        <div class="month-btn" id="prevMonth">
+                            <i class="fas fa-chevron-left"></i>
+                        </div>
+                        <div class="year-label">
+                            <select id="monthSelect" style="border:none; background:none; font-weight:600; color:inherit; outline:none; appearance:none;">
+                                <option value="0">Janeiro</option>
+                                <option value="1">Fevereiro</option>
+                                <option value="2">Março</option>
+                                <option value="3">Abril</option>
+                                <option value="4">Maio</option>
+                                <option value="5">Junho</option>
+                                <option value="6">Julho</option>
+                                <option value="7">Agosto</option>
+                                <option value="8">Setembro</option>
+                                <option value="9">Outubro</option>
+                                <option value="10">Novembro</option>
+                                <option value="11">Dezembro</option>
+                            </select>
+                            <select id="yearSelect" style="border:none; background:none; font-weight:600; color:inherit; outline:none; appearance:none; margin-left:5px;">
+                                <option value="2022">2022</option>
+                                <option value="2023">2023</option>
+                                <option value="2024">2024</option>
+                                <option value="2025">2025</option>
+                            </select>
+                        </div>
+                        <div class="month-btn" id="nextMonth">
+                            <i class="fas fa-chevron-right"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Resumo dos Conflitos -->
+                <div class="conflicts-summary">
+                    <div class="summary-title">
+                        <i class="fas fa-chart-line"></i> Resumo de Conflitos
+                    </div>
+                    <div class="summary-stats">
+                        <div class="stat-card">
+                            <div class="stat-number" id="total-conflicts">4</div>
+                            <div class="stat-label">Total de Conflitos</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number" id="pmf-conflicts">4</div>
+                            <div class="stat-label">Operação PMF</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number" id="thursday-conflicts">3</div>
+                            <div class="stat-label">Quintas (Troca)</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number" id="militaries-affected">6</div>
+                            <div class="stat-label">Militares Afetados</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Filter Bar for Conflicts -->
+                <div class="filter-bar">
+                    <button class="filter-btn active" data-filter="all">Todos os Conflitos</button>
+                    <button class="filter-btn" data-filter="pmf">Operação PMF</button>
+                    <button class="filter-btn" data-filter="thursday">Quinta-feira (Troca)</button>
+                    <button class="filter-btn" data-filter="time">Horário (17h-23h)</button>
+                </div>
+
+                <!-- Conflicts Container -->
+                <div id="conflicts-container">
+                    <!-- Will be populated dynamically with conflict cards -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <!-- Firebase scripts -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="firebase-config.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Inicialize Firebase
+            try {
+                if (firebase) {
+                    console.log('Firebase inicializado com sucesso');
+                    
+                    // Tentar carregar os dados do localStorage primeiro
+                    let schedules = {};
+                    let militaries = [];
+                    
+                    const localMilitaries = localStorage.getItem('militaries');
+                    const localSchedules = localStorage.getItem('schedules');
+                    
+                    if (localMilitaries) {
+                        try {
+                            militaries = JSON.parse(localMilitaries);
+                        } catch (e) {
+                            console.error('Erro ao carregar militares do localStorage:', e);
+                        }
+                    }
+                    
+                    if (localSchedules) {
+                        try {
+                            schedules = JSON.parse(localSchedules);
+                        } catch (e) {
+                            console.error('Erro ao carregar escalas do localStorage:', e);
+                        }
+                    }
+                    
+                    console.log('Dados carregados:', militaries.length + ' militares, ' + Object.keys(schedules).length + ' datas');
+                    
+                    // Configurar para usar o mês atual
+                    const currentDate = new Date();
+                    let selectedMonth = currentDate.getMonth(); // Mês atual (0-11)
+                    let selectedYear = currentDate.getFullYear(); // Ano atual
+                    
+                    // Atualizar os selects de mês e ano para o mês atual
+                    const monthSelect = document.getElementById('monthSelect');
+                    const yearSelect = document.getElementById('yearSelect');
+                    const currentMonthYearElem = document.getElementById('currentMonthYear');
+                    
+                    if (monthSelect && yearSelect) {
+                        monthSelect.value = selectedMonth;
+                        yearSelect.value = selectedYear;
+                        
+                        // Atualizar o texto do mês atual
+                        const MONTHS = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
+                        if (currentMonthYearElem) {
+                            currentMonthYearElem.textContent = `${MONTHS[selectedMonth]} ${selectedYear}`;
+                        }
+                    }
+                    
+                    // Identificar conflitos reais com base nos dados do sistema
+                    identifyConflicts(schedules, militaries, selectedMonth, selectedYear);
+                }
+            } catch (error) {
+                console.error('Erro ao inicializar Firebase:', error);
+                document.getElementById('conflicts-container').innerHTML = `
+                    <div class="alert alert-danger">
+                        <i class="fas fa-exclamation-circle"></i>
+                        <span>Erro de conexão: ${error.message}</span>
+                    </div>`;
+            }
+            
+            // Filter functionality
+            const filterButtons = document.querySelectorAll('.filter-btn');
+            const conflictCards = document.querySelectorAll('.conflict-card');
+            
+            filterButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    // Remove active class from all buttons
+                    filterButtons.forEach(btn => btn.classList.remove('active'));
+                    
+                    // Add active class to clicked button
+                    this.classList.add('active');
+                    
+                    const filter = this.getAttribute('data-filter');
+                    
+                    // Show all cards if filter is 'all'
+                    if (filter === 'all') {
+                        conflictCards.forEach(card => {
+                            card.style.display = 'block';
+                        });
+                        return;
+                    }
+                    
+                    // Filter cards based on type
+                    conflictCards.forEach(card => {
+                        if (filter === 'pmf' && card.querySelector('.conflict-type.pmf')) {
+                            card.style.display = 'block';
+                        } else if (filter === 'thursday' && card.querySelector('.conflict-type.thursday')) {
+                            card.style.display = 'block';
+                        } else if (filter === 'time' && card.querySelector('.time-range')) {
+                            card.style.display = 'block';
+                        } else {
+                            card.style.display = 'none';
+                        }
+                    });
+                    
+                    // Update stats based on visible cards
+                    updateConflictStats(filter);
+                    
+                    // Show "no conflicts" message if no cards are visible
+                    const visibleCards = document.querySelectorAll('.conflict-card[style="display: block"]');
+                    const noConflictsMsg = document.querySelector('.no-conflicts');
+                    
+                    if (visibleCards.length === 0) {
+                        // Create message if it doesn't exist
+                        if (!noConflictsMsg) {
+                            const msg = document.createElement('div');
+                            msg.className = 'no-conflicts';
+                            msg.innerHTML = '<i class="fas fa-check-circle"></i><p>Não há conflitos para este filtro</p>';
+                            document.getElementById('conflicts-container').appendChild(msg);
+                        } else {
+                            noConflictsMsg.style.display = 'block';
+                        }
+                    } else if (noConflictsMsg) {
+                        noConflictsMsg.style.display = 'none';
+                    }
+                });
+            });
+            
+            // Search functionality
+            const searchInput = document.getElementById('search-conflicts');
+            
+            searchInput.addEventListener('input', function() {
+                const searchTerm = this.value.toLowerCase();
+                
+                conflictCards.forEach(card => {
+                    const militaryNames = Array.from(card.querySelectorAll('.military-name'))
+                        .map(el => el.textContent.toLowerCase());
+                    
+                    if (searchTerm === '' || militaryNames.some(name => name.includes(searchTerm))) {
+                        card.style.display = 'block';
+                    } else {
+                        card.style.display = 'none';
+                    }
+                });
+                
+                // Show "no conflicts" message if no cards are visible
+                const visibleCards = document.querySelectorAll('.conflict-card[style="display: block"]');
+                const noConflictsMsg = document.querySelector('.no-conflicts');
+                
+                if (visibleCards.length === 0) {
+                    // Create message if it doesn't exist
+                    if (!noConflictsMsg) {
+                        const msg = document.createElement('div');
+                        msg.className = 'no-conflicts';
+                        msg.innerHTML = '<i class="fas fa-search"></i><p>Nenhum militar encontrado com o termo "' + searchTerm + '"</p>';
+                        document.getElementById('conflicts-container').appendChild(msg);
+                    } else {
+                        noConflictsMsg.style.display = 'block';
+                        noConflictsMsg.innerHTML = '<i class="fas fa-search"></i><p>Nenhum militar encontrado com o termo "' + searchTerm + '"</p>';
+                    }
+                } else if (noConflictsMsg) {
+                    noConflictsMsg.style.display = 'none';
+                }
+                
+                // Update stats based on visible cards
+                updateConflictStats();
+            });
+            
+            // Month navigation
+            const prevMonthBtn = document.getElementById('prevMonth');
+            const nextMonthBtn = document.getElementById('nextMonth');
+            const monthSelect = document.getElementById('monthSelect');
+            const yearSelect = document.getElementById('yearSelect');
+            const currentMonthYearElem = document.getElementById('currentMonthYear');
+            
+            const MONTHS = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
+            
+            // Usar variáveis do escopo externo em vez de valores fixos
+            // Estas variáveis são inicializadas no evento DOMContentLoaded
+            
+            function updateMonthDisplay() {
+                currentMonthYearElem.textContent = `${MONTHS[selectedMonth]} ${selectedYear}`;
+                monthSelect.value = selectedMonth;
+                yearSelect.value = selectedYear;
+            }
+            
+            prevMonthBtn.addEventListener('click', function() {
+                selectedMonth--;
+                if (selectedMonth < 0) {
+                    selectedMonth = 11;
+                    selectedYear--;
+                }
+                updateMonthDisplay();
+                
+                // Aqui você poderia filtrar os conflitos pelo mês selecionado
+                // e atualizar a exibição, se tiver os dados dinâmicos
+                const schedules = JSON.parse(localStorage.getItem('schedules') || '{}');
+                const militaries = JSON.parse(localStorage.getItem('militaries') || '[]');
+                identifyConflicts(schedules, militaries, selectedMonth, selectedYear);
+            });
+            
+            nextMonthBtn.addEventListener('click', function() {
+                selectedMonth++;
+                if (selectedMonth > 11) {
+                    selectedMonth = 0;
+                    selectedYear++;
+                }
+                updateMonthDisplay();
+                
+                // Filtrar conflitos para o novo mês
+                const schedules = JSON.parse(localStorage.getItem('schedules') || '{}');
+                const militaries = JSON.parse(localStorage.getItem('militaries') || '[]');
+                identifyConflicts(schedules, militaries, selectedMonth, selectedYear);
+            });
+            
+            monthSelect.addEventListener('change', function() {
+                selectedMonth = parseInt(this.value);
+                updateMonthDisplay();
+                
+                // Filtrar conflitos para o novo mês
+                const schedules = JSON.parse(localStorage.getItem('schedules') || '{}');
+                const militaries = JSON.parse(localStorage.getItem('militaries') || '[]');
+                identifyConflicts(schedules, militaries, selectedMonth, selectedYear);
+            });
+            
+            yearSelect.addEventListener('change', function() {
+                selectedYear = parseInt(this.value);
+                updateMonthDisplay();
+                
+                // Filtrar conflitos para o novo ano
+                const schedules = JSON.parse(localStorage.getItem('schedules') || '{}');
+                const militaries = JSON.parse(localStorage.getItem('militaries') || '[]');
+                identifyConflicts(schedules, militaries, selectedMonth, selectedYear);
+            });
+            
+            // Adicionar navegação de volta para página inicial
+            document.getElementById('dashboard-nav').addEventListener('click', function() {
+                window.location.href = 'index.html';
+            });
+            
+            // Abrir modal de escalação
+            function openScheduleModal(dateString) {
+                console.log('Abrindo modal para data:', dateString);
+                const modal = document.getElementById('scheduleModal');
+                const selectedDateElem = document.getElementById('selectedDate');
+                const militarySelectElement = document.getElementById('militarySelect');
+                
+                if (!modal || !selectedDateElem || !militarySelectElement) {
+                    console.error('Elementos do modal não encontrados');
+                    return;
+                }
+                
+                // Carregar data do localStorage
+                const schedules = JSON.parse(localStorage.getItem('schedules') || '{}');
+                const militaries = JSON.parse(localStorage.getItem('militaries') || '[]');
+                
+                // Formatar data para exibição
+                const date = new Date(dateString);
+                const dayOfWeekNames = ['Domingo', 'Segunda-feira', 'Terça-feira', 'Quarta-feira', 'Quinta-feira', 'Sexta-feira', 'Sábado'];
+                const formattedDate = `${dayOfWeekNames[date.getDay()]}, ${date.getDate()} de ${MONTHS[date.getMonth()]} de ${date.getFullYear()}`;
+                selectedDateElem.textContent = formattedDate;
+                
+                // Preencher o select com todos os militares (exceto os já escalados)
+                const scheduledMilitaries = schedules[dateString] || [];
+                const scheduledIds = scheduledMilitaries.map(s => s.id);
+                
+                // Ordenar militares por equipe e nome
+                const sortedMilitaries = [...militaries].sort((a, b) => {
+                    // Primeiro ordenar por equipe
+                    if (a.team < b.team) return -1;
+                    if (a.team > b.team) return 1;
+                    
+                    // Depois por patente e nome
+                    return `${a.rank} ${a.name}`.localeCompare(`${b.rank} ${b.name}`);
+                });
+                
+                // Criar opções agrupadas por equipe
+                let options = '<option value="">Selecione um militar</option>';
+                
+                // Mostrar TODOS os militaries, exceto os já escalados
+                const availableMilitaries = militaries.filter(m => !scheduledIds.includes(m.id));
+                
+                if (availableMilitaries.length === 0) {
+                    options = '<option value="">Não há militares disponíveis</option>';
+                } else {
+                    // Agrupar militares por equipe para organização
+                    const teams = ['ALFA', 'BRAVO', 'CHARLIE', 'EXPEDIENTE'];
+                    teams.forEach(team => {
+                        const teamMilitaries = availableMilitaries.filter(m => m.team === team);
+                        
+                        if (teamMilitaries.length > 0) {
+                            options += `<optgroup label="Equipe ${team}">`;
+                            
+                            // Mostrar TODOS os militares da equipe, ordenados por patente e nome
+                            teamMilitaries
+                                .sort((a, b) => `${a.rank} ${a.name}`.localeCompare(`${b.rank} ${b.name}`))
+                                .forEach(military => {
+                                    options += `<option value="${military.id}">${military.rank} ${military.name}</option>`;
+                                });
+                            
+                            options += '</optgroup>';
+                        }
+                    });
+                    
+                    // Verificar se há algum militar sem equipe
+                    const unassignedMilitaries = availableMilitaries.filter(
+                        m => !teams.includes(m.team)
+                    );
+                    
+                    if (unassignedMilitaries.length > 0) {
+                        options += `<optgroup label="Outros">`;
+                        unassignedMilitaries.forEach(military => {
+                            options += `<option value="${military.id}">${military.rank} ${military.name} (${military.team})</option>`;
+                        });
+                        options += '</optgroup>';
+                    }
+                }
+                
+                if (currentTeam !== '') {
+                    options += '</optgroup>';
+                }
+                
+                militarySelectElement.innerHTML = options;
+                
+                // Mostrar militares já escalados
+                updateScheduledMilitariesList(dateString);
+                
+                // Configurar evento para adicionar militar
+                const addButton = document.getElementById('addMilitaryBtn');
+                if (addButton) {
+                    // Remover eventos antigos
+                    const newButton = addButton.cloneNode(true);
+                    addButton.parentNode.replaceChild(newButton, addButton);
+                    
+                    // Adicionar novo evento
+                    newButton.addEventListener('click', function() {
+                        addMilitaryToSchedule(dateString);
+                    });
+                }
+                
+                // Configurar evento para fechar o modal
+                const closeButton = document.getElementById('closeScheduleModal');
+                if (closeButton) {
+                    closeButton.addEventListener('click', function() {
+                        modal.classList.remove('active');
+                    });
+                }
+                
+                // Fechar quando clicar fora do modal
+                modal.addEventListener('click', function(e) {
+                    if (e.target === modal) {
+                        modal.classList.remove('active');
+                    }
+                });
+                
+                // Mostrar o modal
+                modal.classList.add('active');
+            }
+            
+            // Função para adicionar militar à escala
+            function addMilitaryToSchedule(dateString) {
+                const militarySelect = document.getElementById('militarySelect');
+                const errorElement = document.getElementById('scheduleError');
+                
+                if (!militarySelect || militarySelect.value === '') {
+                    showScheduleError('Selecione um militar!');
+                    return;
+                }
+                
+                // Carregar dados atualizados
+                let schedules = JSON.parse(localStorage.getItem('schedules') || '{}');
+                const militaries = JSON.parse(localStorage.getItem('militaries') || '[]');
+                
+                const militaryId = militarySelect.value;
+                const military = militaries.find(m => m.id === militaryId);
+                
+                if (!military) {
+                    showScheduleError('Militar não encontrado!');
+                    return;
+                }
+                
+                // Verificar se já está escalado
+                if (schedules[dateString] && schedules[dateString].some(s => s.id === militaryId)) {
+                    showScheduleError('Este militar já está escalado para esta data!');
+                    return;
+                }
+                
+                // Adicionar militar à escala
+                if (!schedules[dateString]) {
+                    schedules[dateString] = [];
+                }
+                
+                schedules[dateString].push({ id: militaryId });
+                
+                // Salvar no localStorage
+                localStorage.setItem('schedules', JSON.stringify(schedules));
+                
+                // Atualizar interface
+                updateScheduledMilitariesList(dateString);
+                
+                // Atualizar select de militares (remover o adicionado)
+                const option = militarySelect.querySelector(`option[value="${militaryId}"]`);
+                if (option) {
+                    option.remove();
+                }
+                
+                // Se não houver mais opções, desabilitar o select
+                if (militarySelect.options.length <= 1) {
+                    militarySelect.disabled = true;
+                    document.getElementById('addMilitaryBtn').disabled = true;
+                }
+                
+                // Recarregar a página de conflitos após um breve atraso
+                setTimeout(() => {
+                    // Recarregar os conflitos mantendo o mês selecionado
+                    const newSchedules = JSON.parse(localStorage.getItem('schedules') || '{}');
+                    identifyConflicts(newSchedules, militaries, selectedMonth, selectedYear);
+                }, 500);
+            }
+            
+            // Função para atualizar a lista de militares escalados
+            function updateScheduledMilitariesList(dateString) {
+                const scheduledList = document.getElementById('scheduledMilitariesList');
+                if (!scheduledList) return;
+                
+                // Carregar dados atualizados
+                const schedules = JSON.parse(localStorage.getItem('schedules') || '{}');
+                const militaries = JSON.parse(localStorage.getItem('militaries') || '[]');
+                
+                const scheduledMilitaries = schedules[dateString] || [];
+                
+                if (scheduledMilitaries.length === 0) {
+                    scheduledList.innerHTML = '<div class="no-militaries">Nenhum militar escalado para esta data.</div>';
+                    return;
+                }
+                
+                let html = '';
+                scheduledMilitaries.forEach(schedule => {
+                    const military = militaries.find(m => m.id === schedule.id);
+                    if (military) {
+                        html += `
+                            <div class="scheduled-item">
+                                <div class="scheduled-avatar ${military.team.toLowerCase()}-bg">
+                                    ${military.name.charAt(0)}
+                                </div>
+                                <div class="scheduled-info">
+                                    <div class="scheduled-name">${military.rank} ${military.name}</div>
+                                    <div class="scheduled-team ${military.team.toLowerCase()}-text">${military.team}</div>
+                                </div>
+                                <button class="remove-military-btn" data-id="${military.id}">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
+                        `;
+                    }
+                });
+                
+                scheduledList.innerHTML = html;
+                
+                // Adicionar evento para remover militares
+                const removeButtons = scheduledList.querySelectorAll('.remove-military-btn');
+                removeButtons.forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        const militaryId = this.getAttribute('data-id');
+                        removeMilitaryFromSchedule(dateString, militaryId);
+                    });
+                });
+            }
+            
+            // Remover militar da escala
+            function removeMilitaryFromSchedule(dateString, militaryId) {
+                // Carregar dados atualizados
+                let schedules = JSON.parse(localStorage.getItem('schedules') || '{}');
+                const militaries = JSON.parse(localStorage.getItem('militaries') || '[]');
+                
+                if (!schedules[dateString]) {
+                    return;
+                }
+                
+                // Encontrar o militar
+                const military = militaries.find(m => m.id === militaryId);
+                
+                if (military) {
+                    console.log('Removendo militar da escala:', military.rank, military.name, 'em', dateString);
+                }
+                
+                // Remover militar da escala
+                schedules[dateString] = schedules[dateString].filter(s => s.id !== militaryId);
+                
+                // Remover data se não houver mais militares
+                if (schedules[dateString].length === 0) {
+                    delete schedules[dateString];
+                }
+                
+                // Salvar no localStorage
+                localStorage.setItem('schedules', JSON.stringify(schedules));
+                
+                // Atualizar interface
+                updateScheduledMilitariesList(dateString);
+                
+                // Reabilitar o militar removido no select
+                const militarySelect = document.getElementById('militarySelect');
+                if (militarySelect && military) {
+                    // Encontrar o grupo apropriado
+                    let optgroup = null;
+                    for (let i = 0; i < militarySelect.children.length; i++) {
+                        if (militarySelect.children[i].label === `Equipe ${military.team}`) {
+                            optgroup = militarySelect.children[i];
+                            break;
+                        }
+                    }
+                    
+                    // Se não houver grupo, criá-lo
+                    if (!optgroup) {
+                        optgroup = document.createElement('optgroup');
+                        optgroup.label = `Equipe ${military.team}`;
+                        militarySelect.appendChild(optgroup);
+                    }
+                    
+                    // Adicionar a opção de militar
+                    const option = document.createElement('option');
+                    option.value = militaryId;
+                    option.textContent = `${military.rank} ${military.name}`;
+                    optgroup.appendChild(option);
+                    
+                    // Habilitar o select se estava desabilitado
+                    militarySelect.disabled = false;
+                    document.getElementById('addMilitaryBtn').disabled = false;
+                }
+                
+                // Recarregar a página de conflitos após um breve atraso
+                setTimeout(() => {
+                    // Recarregar os conflitos mantendo o mês selecionado
+                    const newSchedules = JSON.parse(localStorage.getItem('schedules') || '{}');
+                    identifyConflicts(newSchedules, militaries, selectedMonth, selectedYear);
+                }, 500);
+            }
+            
+            // Mostrar erro de agendamento
+            function showScheduleError(message) {
+                const errorElement = document.getElementById('scheduleError');
+                
+                if (errorElement) {
+                    const errorText = errorElement.querySelector('span');
+                    if (errorText) {
+                        errorText.textContent = message;
+                    }
+                    
+                    errorElement.style.display = 'flex';
+                    
+                    setTimeout(() => {
+                        errorElement.style.display = 'none';
+                    }, 3000);
+                }
+            }
+            
+            // Função para identificar conflitos reais
+            function identifyConflicts(schedules, militaries, month = 3, year = 2023) {
+                const conflicts = [];
+                const conflictsContainer = document.getElementById('conflicts-container');
+                
+                // Referência para ciclo de serviço (como no app-new.js)
+                const DUTY_REFERENCE_DATE = new Date(2025, 3, 3); // Apr 3, 2025
+                
+                // Limpar conteúdo atual
+                conflictsContainer.innerHTML = '';
+                
+                // Obter datas do mês selecionado
+                const monthString = `${year}-${String(month + 1).padStart(2, '0')}`;
+                
+                // Função para obter a equipe de serviço para uma data
+                function getDutyTeam(date) {
+                    const dayMs = 24 * 60 * 60 * 1000;
+                    const diffDays = Math.round((date.getTime() - DUTY_REFERENCE_DATE.getTime()) / dayMs);
+                    
+                    // Duty cycle is 21 days (7 days per team)
+                    const cycle = 21;
+                    
+                    // Normalize to positive number
+                    const dayInCycle = ((diffDays % cycle) + cycle) % cycle;
+                    
+                    if (dayInCycle < 7) {
+                        return 'BRAVO';    // First 7 days
+                    } else if (dayInCycle < 14) {
+                        return 'ALFA';     // Next 7 days
+                    } else {
+                        return 'CHARLIE';  // Last 7 days
+                    }
+                }
+                
+                // Para cada data no mês atual com agendamentos
+                Object.keys(schedules).forEach(dateString => {
+                    if (!dateString.startsWith(monthString)) return;
+                    
+                    const date = new Date(dateString);
+                    const dayOfWeek = date.getDay();
+                    const dutyTeam = getDutyTeam(date);
+                    
+                    // Verificar se é quinta-feira (dia 4)
+                    const isThursday = dayOfWeek === 4;
+                    
+                    // Verificar se há militares escalados para essa data (operação PMF)
+                    if (schedules[dateString] && schedules[dateString].length > 0) {
+                        // Militares em conflito (na escala regular e também na operação PMF)
+                        const conflictMilitaries = [];
+                        
+                        // Para militares na escala do dia
+                        schedules[dateString].forEach(schedule => {
+                            const military = militaries.find(m => m.id === schedule.id);
+                            
+                            if (military) {
+                                // Determinar status de conflito
+                                let status = '';
+                                
+                                // Verificar se o militar tem um conflito explícito registrado
+                                if (schedule.hasConflict === true) {
+                                    status = 'Saindo'; // Se foi marcado com conflito, está na equipe do dia
+                                } else if (military.team === dutyTeam) {
+                                    // Militar está na equipe de serviço atual
+                                    status = 'Saindo';
+                                } else if (isThursday) {
+                                    // Se for quinta-feira, também checar equipe que está entrando/saindo
+                                    const nextTeamDay = new Date(date);
+                                    nextTeamDay.setDate(nextTeamDay.getDate() + 1);
+                                    const nextDayTeam = getDutyTeam(nextTeamDay);
+                                    
+                                    if (military.team === nextDayTeam) {
+                                        // Militar está entrando na escala (quinta à tarde já tem conflito)
+                                        status = 'Entrando';
+                                    }
+                                }
+                                
+                                // Adicionar todos os militares escalados, destacando os com conflito
+                                conflictMilitaries.push({
+                                    id: military.id,
+                                    name: military.name,
+                                    rank: military.rank,
+                                    team: military.team,
+                                    status: status
+                                });
+                            }
+                        });
+                        
+                        // Se encontramos militares para esta data, incluímos no conflito
+                        if (conflictMilitaries.length > 0) {
+                            conflicts.push({
+                                date: dateString,
+                                dayOfWeek,
+                                isThursday,
+                                dutyTeam,
+                                militaries: conflictMilitaries
+                            });
+                            
+                            // Criar card de conflito para este dia
+                            createConflictCard(dateString, isThursday, conflictMilitaries);
+                            
+                            // Adicionar evento de clique ao card para abrir modal de escalação
+                            setTimeout(() => {
+                                const card = document.querySelector(`.conflict-card[data-date="${dateString}"]`);
+                                if (card) {
+                                    card.addEventListener('click', function(e) {
+                                        if (!e.target.closest('.conflict-military')) { // Não abrir se clicar em um militar
+                                            openScheduleModal(dateString);
+                                        }
+                                    });
+                                }
+                            }, 10);
+                        }
+                    }
+                });
+                
+                // Se não houver conflitos, mostrar mensagem
+                if (conflicts.length === 0) {
+                    conflictsContainer.innerHTML = `
+                        <div class="no-conflicts">
+                            <i class="fas fa-check-circle"></i>
+                            <p>Não há conflitos de escala no mês de ${MONTHS[month]} de ${year}</p>
+                        </div>`;
+                }
+                
+                // Atualizar estatísticas
+                updateConflictStats();
+                
+                console.log('Conflitos identificados:', conflicts.length);
+            }
+            
+            // Criar card de conflito
+            function createConflictCard(dateString, isThursday, militaries) {
+                const date = new Date(dateString);
+                const conflictsContainer = document.getElementById('conflicts-container');
+                
+                const dayOfWeekNames = ['Domingo', 'Segunda-feira', 'Terça-feira', 'Quarta-feira', 'Quinta-feira', 'Sexta-feira', 'Sábado'];
+                const formattedDate = `${date.getDate().toString().padStart(2, '0')}/${(date.getMonth() + 1).toString().padStart(2, '0')}/${date.getFullYear()} - ${dayOfWeekNames[date.getDay()]}`;
+                
+                // Criar elementos HTML para militares
+                const militaryElements = militaries.map(military => {
+                    const initials = military.name.split(' ').map(n => n[0]).join('');
+                    return `
+                        <div class="conflict-military">
+                            <div class="conflict-avatar" style="background-color: var(--${military.team.toLowerCase()}-main);">${initials}</div>
+                            <div class="conflict-info">
+                                <div class="military-name">${military.rank} ${military.name}</div>
+                                <div class="military-team ${military.team.toLowerCase()}-text">${military.team} ${military.status ? '(' + military.status + ')' : ''}</div>
+                                <div class="military-schedule">Escalado no serviço regular e PMF (17:00-23:00)</div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+                
+                // Criar o card
+                const card = document.createElement('div');
+                card.className = 'conflict-card';
+                card.dataset.date = dateString; // Adicionar o atributo data-date para identificação
+                card.innerHTML = `
+                    <div class="conflict-header">
+                        <div class="conflict-title">
+                            <i class="fas fa-exclamation-circle"></i>
+                            Conflito de Escala - Operação PMF
+                        </div>
+                        <div class="conflict-date">${formattedDate}</div>
+                    </div>
+                    <span class="conflict-type pmf">Operação PMF</span>
+                    ${isThursday ? '<span class="conflict-type thursday">Troca de Guarnição</span>' : ''}
+                    
+                    <div class="conflict-details">
+                        Escala da operação PMF (<span class="time-range">17:00-23:00</span>)
+                        ${isThursday ? ' coincidindo com a troca de guarnição de <span class="time-range">19:30</span>.' : '.'}
+                        Os militares abaixo estão escalados para a operação PMF neste dia. 
+                        Militares com status "Saindo" ou "Entrando" indicam conflito com a escala regular.
+                        <div class="add-hint"><i class="fas fa-plus-circle"></i> Clique no card para escalar mais militares</div>
+                    </div>
+                    
+                    <div class="conflict-militaries">
+                        ${militaryElements}
+                    </div>
+                `;
+                
+                conflictsContainer.appendChild(card);
+            }
+            
+            // Função para atualizar as estatísticas de conflitos
+            function updateConflictStats(filter = 'all') {
+                // Contadores para estatísticas
+                let totalConflicts = 0;
+                let pmfConflicts = 0;
+                let thursdayConflicts = 0;
+                let militariesAffected = 0;
+                
+                // Selecionar apenas os cartões visíveis se houver um filtro
+                const cards = document.querySelectorAll(filter === 'all' ? '.conflict-card' : '.conflict-card[style="display: block"]');
+                
+                // Contagem básica de conflitos
+                totalConflicts = cards.length;
+                
+                // Conjunto para contar militares únicos afetados
+                const uniqueMilitaries = new Set();
+                
+                // Contar por tipo e militares afetados
+                cards.forEach(card => {
+                    if (card.querySelector('.conflict-type.pmf')) {
+                        pmfConflicts++;
+                    }
+                    
+                    if (card.querySelector('.conflict-type.thursday')) {
+                        thursdayConflicts++;
+                    }
+                    
+                    // Contar militares afetados
+                    const militaries = card.querySelectorAll('.military-name');
+                    militaries.forEach(military => {
+                        uniqueMilitaries.add(military.textContent);
+                    });
+                });
+                
+                militariesAffected = uniqueMilitaries.size;
+                
+                // Atualizar elementos na UI
+                document.getElementById('total-conflicts').textContent = totalConflicts;
+                document.getElementById('pmf-conflicts').textContent = pmfConflicts;
+                document.getElementById('thursday-conflicts').textContent = thursdayConflicts;
+                document.getElementById('militaries-affected').textContent = militariesAffected;
+            }
+        });
+    </script>
+</body>
+</html>

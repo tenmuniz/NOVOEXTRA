@@ -1,0 +1,465 @@
+/* Global Styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Roboto', sans-serif;
+    background-color: #f5f7fb;
+    color: #333;
+    line-height: 1.6;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 15px;
+}
+
+/* Header */
+header {
+    background-color: #3f51b5;
+    color: white;
+    padding: 20px 0;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+header h1 {
+    font-size: 24px;
+    font-weight: 500;
+}
+
+header p {
+    font-size: 14px;
+    opacity: 0.9;
+}
+
+/* Navigation */
+nav {
+    background-color: white;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+nav .container {
+    display: flex;
+}
+
+.nav-item {
+    display: flex;
+    align-items: center;
+    padding: 15px 20px;
+    font-size: 14px;
+    font-weight: 500;
+    color: #555;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.nav-item svg {
+    margin-right: 8px;
+}
+
+.nav-item.active {
+    background-color: #3f51b5;
+    color: white;
+}
+
+.nav-item:hover:not(.active) {
+    background-color: #f0f2f5;
+}
+
+/* Main Content */
+main {
+    padding: 30px 0;
+}
+
+.dashboard-content {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+/* Sections */
+.militares-section, .escala-section {
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+    padding: 20px;
+    flex: 1 1 300px;
+}
+
+.section-header {
+    padding-bottom: 15px;
+    border-bottom: 1px solid #eee;
+    margin-bottom: 15px;
+}
+
+.section-header h2 {
+    font-size: 18px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+}
+
+.section-header h2 svg {
+    margin-right: 8px;
+    color: #3f51b5;
+}
+
+/* Militares List */
+.militares-list {
+    margin-bottom: 20px;
+}
+
+.militar-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 0;
+    border-bottom: 1px solid #eee;
+}
+
+.militar-name {
+    font-weight: 500;
+    font-size: 14px;
+    margin-bottom: 2px;
+}
+
+.militar-status {
+    font-size: 12px;
+    color: #777;
+}
+
+.militar-tag {
+    font-size: 12px;
+    font-weight: 500;
+    padding: 4px 8px;
+    border-radius: 4px;
+}
+
+/* Tags */
+.alfa {
+    background-color: #ef5350;
+    color: white;
+}
+
+.bravo {
+    background-color: #66bb6a;
+    color: white;
+}
+
+.charlie {
+    background-color: #42a5f5;
+    color: white;
+}
+
+.expediente {
+    background-color: #ffa726;
+    color: white;
+}
+
+/* Guarnições Panel */
+.guarnicoes-panel {
+    background-color: #f8faff;
+    border-radius: 6px;
+    padding: 15px;
+}
+
+.guarnicoes-header {
+    display: flex;
+    align-items: center;
+    font-weight: 500;
+    font-size: 14px;
+    margin-bottom: 12px;
+}
+
+.guarnicoes-header svg {
+    margin-right: 8px;
+    color: #3f51b5;
+}
+
+.guarnicoes-tags {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 15px;
+}
+
+.guarnicao-tag {
+    font-size: 11px;
+    font-weight: 500;
+    padding: 3px 6px;
+    border-radius: 3px;
+}
+
+/* Limites */
+.limites {
+    border-top: 1px solid #eee;
+    padding-top: 15px;
+}
+
+.limites-header {
+    display: flex;
+    align-items: center;
+    font-weight: 500;
+    font-size: 14px;
+    margin-bottom: 10px;
+    color: #f44336;
+}
+
+.limites-header svg {
+    margin-right: 8px;
+}
+
+.limites-list {
+    list-style-type: none;
+    font-size: 13px;
+    color: #666;
+}
+
+.limites-list li {
+    margin-bottom: 5px;
+}
+
+/* Month Selector */
+.month-selector {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.btn-month-nav {
+    display: flex;
+    align-items: center;
+    background-color: #3f51b5;
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    font-size: 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 500;
+}
+
+.btn-month-nav.prev svg {
+    margin-right: 5px;
+}
+
+.btn-month-nav.next svg {
+    margin-left: 5px;
+}
+
+.month-display {
+    display: flex;
+    gap: 10px;
+}
+
+.month-display select {
+    padding: 6px 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background-color: white;
+}
+
+/* Calendar */
+.calendar {
+    border: 1px solid #eee;
+    border-radius: 6px;
+    overflow: hidden;
+}
+
+.calendar-header {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    background-color: #f0f2f5;
+}
+
+.day-header {
+    text-align: center;
+    padding: 10px;
+    font-weight: 500;
+    font-size: 13px;
+}
+
+.calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    grid-template-rows: repeat(5, 1fr);
+    grid-gap: 1px;
+    background-color: #eee;
+}
+
+.calendar-day {
+    background-color: white;
+    min-height: 80px;
+    padding: 5px;
+    position: relative;
+}
+
+.calendar-day.empty {
+    background-color: #f9f9f9;
+}
+
+.day-number {
+    display: inline-block;
+    width: 24px;
+    height: 24px;
+    line-height: 24px;
+    text-align: center;
+    font-weight: 500;
+    font-size: 12px;
+    border-radius: 50%;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .dashboard-content {
+        flex-direction: column;
+    }
+    
+    .month-selector {
+        flex-direction: column;
+        gap: 10px;
+    }
+}
+
+/* Conflito de escalas */
+.conflict-option {
+    background-color: rgba(255, 87, 87, 0.1);
+    color: #d32f2f;
+    font-weight: bold;
+}
+
+/* Estilo para o texto do militar com conflito no dropdown */
+select option.conflict-option {
+    background-color: #ffebee;
+    color: #d32f2f;
+    font-weight: 500;
+}
+
+/* Adicionando estilo de hover para opção de militar com conflito */
+select option.conflict-option:hover {
+    background-color: #ffcdd2;
+}
+
+/* Estilos para item com conflito na lista de escalados */
+.scheduled-item.conflict-item {
+    border-left: 3px solid #d32f2f;
+    background-color: rgba(255, 87, 87, 0.05);
+}
+
+.conflict-badge {
+    display: inline-block;
+    font-size: 11px;
+    margin-left: 5px;
+    padding: 1px 5px;
+    border-radius: 3px;
+    background-color: #ffcdd2;
+    color: #d32f2f;
+    font-weight: 500;
+}
+
+.conflict-badge i {
+    margin-right: 3px;
+    font-size: 10px;
+}
+
+/* Estilos para alerta de confirmação */
+.alert-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.alert-overlay.visible {
+    opacity: 1;
+}
+
+.alert-box {
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+    padding: 20px;
+    max-width: 450px;
+    width: 90%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    transform: translateY(20px);
+    transition: transform 0.3s ease;
+}
+
+.alert-overlay.visible .alert-box {
+    transform: translateY(0);
+}
+
+.alert-icon {
+    font-size: 36px;
+    margin-bottom: 15px;
+}
+
+.alert-icon.warning {
+    color: #ff9800;
+}
+
+.alert-content {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.alert-content h3 {
+    margin-bottom: 10px;
+    font-size: 20px;
+    color: #333;
+}
+
+.alert-content p {
+    color: #555;
+    line-height: 1.5;
+}
+
+.alert-actions {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    width: 100%;
+}
+
+.alert-btn {
+    padding: 10px 20px;
+    border-radius: 4px;
+    font-weight: 500;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.alert-btn.cancel {
+    background-color: #f5f5f5;
+    color: #333;
+}
+
+.alert-btn.cancel:hover {
+    background-color: #e0e0e0;
+}
+
+.alert-btn.confirm {
+    background-color: #2a3990;
+    color: white;
+}
+
+.alert-btn.confirm:hover {
+    background-color: #4f5ff6;
+}

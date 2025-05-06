@@ -1,0 +1,259 @@
+/**
+ * Modern Tab System Styles
+ * A comprehensive styling system for tabs with animations and responsive design
+ */
+
+/* Base Tab Container */
+.tabs-container,
+.tab-system {
+    width: 100%;
+    position: relative;
+    margin-bottom: 1.5rem;
+}
+
+/* Tab Navigation */
+.tabs {
+    display: flex;
+    gap: 0.5rem;
+    border-bottom: 1px solid var(--gray-200, #eaeaea);
+    position: relative;
+    margin-bottom: 1rem;
+    flex-wrap: wrap;
+}
+
+/* Individual Tab */
+.tab {
+    padding: 0.75rem 1.25rem;
+    font-weight: 500;
+    cursor: pointer;
+    position: relative;
+    transition: all 0.3s ease;
+    border-radius: 4px 4px 0 0;
+    user-select: none;
+    color: var(--text-secondary, #666);
+    background: transparent;
+    outline: none;
+}
+
+.tab:hover {
+    color: var(--text-primary, #333);
+    background-color: var(--gray-100, #f5f5f5);
+}
+
+.tab:focus-visible {
+    box-shadow: 0 0 0 2px var(--primary-light, rgba(66, 99, 235, 0.2));
+    outline: none;
+}
+
+/* Active Tab */
+.tab.active {
+    color: var(--primary, #4263eb);
+    font-weight: 600;
+}
+
+.tab.active::after {
+    content: '';
+    position: absolute;
+    bottom: -1px;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background-color: var(--primary, #4263eb);
+    border-radius: 2px;
+    animation: slideIn 0.3s ease forwards;
+}
+
+/* Tab Content */
+.tab-content {
+    display: none;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.tab-content.active {
+    display: block;
+    opacity: 1;
+    animation: fadeIn 0.4s ease;
+}
+
+/* Animation classes */
+.animate-in {
+    animation: fadeIn 0.4s ease;
+}
+
+.animate-out {
+    animation: fadeOut 0.3s ease;
+}
+
+/* Tab System Variants */
+
+/* Pills style */
+.tabs.pills {
+    border-bottom: none;
+    gap: 0.5rem;
+}
+
+.tabs.pills .tab {
+    border-radius: 30px;
+    padding: 0.5rem 1.25rem;
+    background-color: var(--gray-100, #f5f5f5);
+}
+
+.tabs.pills .tab.active {
+    background-color: var(--primary, #4263eb);
+    color: white;
+    box-shadow: 0 2px 4px rgba(66, 99, 235, 0.3);
+}
+
+.tabs.pills .tab.active::after {
+    display: none;
+}
+
+/* Bordered style */
+.tabs.bordered .tab {
+    border: 1px solid var(--gray-200, #eaeaea);
+    border-bottom: none;
+    border-radius: 4px 4px 0 0;
+    margin-bottom: -1px;
+    background-color: var(--gray-50, #fafafa);
+}
+
+.tabs.bordered .tab.active {
+    background-color: white;
+    border-color: var(--gray-200, #eaeaea);
+    border-bottom-color: white;
+}
+
+.tabs.bordered .tab.active::after {
+    display: none;
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(5px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fadeOut {
+    from {
+        opacity: 1;
+        transform: translateY(0);
+    }
+    to {
+        opacity: 0;
+        transform: translateY(-5px);
+    }
+}
+
+@keyframes slideIn {
+    from {
+        transform: scaleX(0);
+    }
+    to {
+        transform: scaleX(1);
+    }
+}
+
+/* Responsive styles */
+@media (max-width: 768px) {
+    .tabs {
+        gap: 0.25rem;
+    }
+    
+    .tab {
+        padding: 0.5rem 1rem;
+        font-size: 0.9rem;
+    }
+    
+    .tabs.scrollable {
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        padding-bottom: 5px;
+    }
+    
+    .tabs.scrollable::-webkit-scrollbar {
+        height: 4px;
+    }
+    
+    .tabs.scrollable::-webkit-scrollbar-thumb {
+        background: var(--gray-300, #d1d1d1);
+        border-radius: 4px;
+    }
+}
+
+/* Vertical tabs layout */
+.tabs-container.vertical {
+    display: flex;
+    gap: 1.5rem;
+}
+
+.tabs-container.vertical .tabs {
+    flex-direction: column;
+    border-bottom: none;
+    border-right: 1px solid var(--gray-200, #eaeaea);
+    min-width: 150px;
+    padding-right: 0.5rem;
+}
+
+.tabs-container.vertical .tab {
+    text-align: left;
+    border-radius: 4px 0 0 4px;
+}
+
+.tabs-container.vertical .tab.active::after {
+    top: 0;
+    bottom: 0;
+    left: auto;
+    right: -1px;
+    width: 2px;
+    height: auto;
+    animation: slideDown 0.3s ease forwards;
+}
+
+@keyframes slideDown {
+    from {
+        transform: scaleY(0);
+    }
+    to {
+        transform: scaleY(1);
+    }
+}
+
+/* Compatibility with existing styles */
+/* For calendar tabs */
+.calendar-tabs {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.calendar-tab {
+    padding: 0.5rem 1rem;
+    border-radius: 30px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    user-select: none;
+}
+
+.calendar-tab.active {
+    background: var(--primary-color, #4263eb);
+    color: white;
+    box-shadow: 0 2px 4px rgba(66, 99, 235, 0.3);
+}
+
+.calendar-tab:not(.active) {
+    background: var(--light-color, #f5f5f5);
+    color: var(--text-secondary, #666);
+}
+
+.calendar-tab:hover:not(.active) {
+    background: var(--gray-200, #e5e5e5);
+}
