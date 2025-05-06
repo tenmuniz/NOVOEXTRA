@@ -1639,161 +1639,6 @@
     </div>
     
     <!-- Modal for Military Management -->
-    <div class="modal-overlay" id="militaryModal">
-        <div class="modal" style="max-width: 650px; width: 90%; max-height: 85vh; overflow-y: auto;">
-            <div class="modal-header">
-                <h3 class="modal-title">Gerenciamento de Militares</h3>
-                <div class="modal-subtitle" id="militarySubtitle">Adicionar, Editar ou Excluir</div>
-                <button class="close-modal" id="closeMilitaryModal">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-            <div class="modal-body">
-                <!-- Tab System for Military Management -->
-                <div class="tab-system">
-                    <div class="tabs pills">
-                        <div class="tab active" data-tab="add-military">Adicionar</div>
-                        <div class="tab" data-tab="edit-military">Editar</div>
-                        <div class="tab" data-tab="delete-military">Remover</div>
-                    </div>
-                    
-                    <div class="tab-content active" id="add-military">
-                        <form id="addMilitaryForm" onsubmit="return addMilitary()">
-                            <div class="form-group">
-                                <label class="form-label">Patente</label>
-                                <select class="form-control" id="addRank" required>
-                                    <option value="">Selecione a Patente</option>
-                                    <option>CEL PM</option>
-                                    <option>TC PM</option>
-                                    <option>MAJ PM</option>
-                                    <option>CAP PM</option>
-                                    <option>1° TEN PM</option>
-                                    <option>2° TEN PM</option>
-                                    <option>ASP OF PM</option>
-                                    <option>SUB TEN PM</option>
-                                    <option>1° SGT PM</option>
-                                    <option>2° SGT PM</option>
-                                    <option>3° SGT PM</option>
-                                    <option>CB PM</option>
-                                    <option>SD 1ª CL PM</option>
-                                    <option>SD 2ª CL PM</option>
-                                    <option>SD PM</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label">Nome</label>
-                                <input type="text" class="form-control" id="addName" placeholder="Nome completo" required>
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label">Guarnição</label>
-                                <select class="form-control" id="addTeam" required>
-                                    <option value="">Selecione a Guarnição</option>
-                                    <option value="ALFA">ALFA</option>
-                                    <option value="BRAVO">BRAVO</option>
-                                    <option value="CHARLIE">CHARLIE</option>
-                                    <option value="EXPEDIENTE">EXPEDIENTE</option>
-                                </select>
-                            </div>
-                            <button type="submit" class="btn btn-primary">
-                                <i class="fas fa-plus"></i> Adicionar Militar
-                            </button>
-                        </form>
-                        <div id="addSuccess" style="display: none; margin-top: 15px;" class="alert alert-success">
-                            <i class="fas fa-check-circle"></i> Militar adicionado com sucesso!
-                        </div>
-                    </div>
-                    
-                    <div class="tab-content" id="edit-military">
-                        <div class="form-group">
-                            <label class="form-label">Selecionar Militar</label>
-                            <select class="form-control" id="selectMilitaryToEdit" onchange="showEditForm()">
-                                <option value="">Selecione um Militar</option>
-                                <option value="mil_1">SGT PEIXOTO - ALFA</option>
-                                <option value="mil_2">SGT RODRIGO - ALFA</option>
-                                <option value="mil_13">SGT FÁBIO - BRAVO</option>
-                                <option value="mil_23">SGT PINHEIRO - CHARLIE</option>
-                            </select>
-                        </div>
-                        <form id="editMilitaryForm" style="display: none;" onsubmit="return updateMilitary()">
-                            <input type="hidden" id="editId">
-                            <div class="form-group">
-                                <label class="form-label">Patente</label>
-                                <select class="form-control" id="editRank" required>
-                                    <option>CEL PM</option>
-                                    <option>TC PM</option>
-                                    <option>MAJ PM</option>
-                                    <option>CAP PM</option>
-                                    <option>1° TEN PM</option>
-                                    <option>2° TEN PM</option>
-                                    <option>ASP OF PM</option>
-                                    <option>SUB TEN PM</option>
-                                    <option>1° SGT PM</option>
-                                    <option>2° SGT PM</option>
-                                    <option>3° SGT PM</option>
-                                    <option>CB PM</option>
-                                    <option>SD 1ª CL PM</option>
-                                    <option>SD 2ª CL PM</option>
-                                    <option>SD PM</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label">Nome</label>
-                                <input type="text" class="form-control" id="editName" required>
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label">Guarnição</label>
-                                <select class="form-control" id="editTeam" required>
-                                    <option value="ALFA">ALFA</option>
-                                    <option value="BRAVO">BRAVO</option>
-                                    <option value="CHARLIE">CHARLIE</option>
-                                    <option value="EXPEDIENTE">EXPEDIENTE</option>
-                                </select>
-                            </div>
-                            <button type="submit" class="btn btn-primary">
-                                <i class="fas fa-save"></i> Salvar Alterações
-                            </button>
-                        </form>
-                        <div id="editSuccess" style="display: none; margin-top: 15px;" class="alert alert-success">
-                            <i class="fas fa-check-circle"></i> Militar atualizado com sucesso!
-                        </div>
-                    </div>
-                    
-                    <div class="tab-content" id="delete-military">
-                        <div class="form-group">
-                            <label class="form-label">Selecionar Militar</label>
-                            <select class="form-control" id="selectMilitaryToDelete" onchange="showDeleteConfirmation()">
-                                <option value="">Selecione um Militar</option>
-                                <option value="mil_1">SGT PEIXOTO - ALFA</option>
-                                <option value="mil_2">SGT RODRIGO - ALFA</option>
-                                <option value="mil_13">SGT FÁBIO - BRAVO</option>
-                                <option value="mil_23">SGT PINHEIRO - CHARLIE</option>
-                            </select>
-                        </div>
-                        <div id="militaryToDelete" style="display: none; margin-top: 20px;">
-                            <div style="display: flex; align-items: center; margin-bottom: 15px;">
-                                <div id="deleteAvatar" style="width: 40px; height: 40px; border-radius: 50%; background-color: #e11d48; color: white; display: flex; align-items: center; justify-content: center; margin-right: 10px;">P</div>
-                                <div>
-                                    <div id="deleteName" style="font-weight: bold;">SGT PEIXOTO</div>
-                                    <div id="deleteTeam" style="color: #e11d48;">ALFA</div>
-                                </div>
-                            </div>
-                            <div class="alert alert-warning">
-                                <i class="fas fa-exclamation-triangle"></i> Atenção: Esta ação não pode ser desfeita e removerá o militar de todas as escalas.
-                            </div>
-                            <button onclick="deleteMilitary()" class="btn btn-danger" style="width: 100%;">
-                                <i class="fas fa-trash"></i> Confirmar Exclusão
-                            </button>
-                            <div id="deleteSuccess" style="display: none; margin-top: 15px;" class="alert alert-success">
-                                <i class="fas fa-check-circle"></i> Militar excluído com sucesso!
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    <!-- Modal for New Military Management -->
     <div class="modal-overlay" id="militaryManagementModal">
         <div class="modal" style="max-width: 650px; width: 90%; max-height: 85vh; overflow-y: auto;">
             <div class="modal-header">
@@ -1807,6 +1652,27 @@
                 <div class="military-management-content">
                     <!-- Will be populated by JavaScript -->
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Confirmation Modals -->
+    <div class="delete-confirmation" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.5); z-index: 2000; justify-content: center; align-items: center;">
+        <div class="modal-content" style="background-color: white; padding: 20px; border-radius: 10px; max-width: 500px; width: 90%;">
+            <h2>Confirmar Exclusão</h2>
+            <p id="delete-confirmation-message">Você tem certeza que deseja excluir este militar?</p>
+            
+            <div id="schedules-warning">
+                <!-- Will be populated dynamically if needed -->
+            </div>
+            
+            <div id="deleteSuccess" class="alert alert-success" style="display: none; margin-top: 15px; background-color: #ECFDF5; color: #047857; padding: 10px; border-radius: 5px;">
+                <i class="fas fa-check-circle"></i> Militar excluído com sucesso!
+            </div>
+            
+            <div class="button-group" style="display: flex; gap: 10px; margin-top: 20px; justify-content: flex-end;">
+                <button class="btn btn-secondary cancel-delete-btn" style="padding: 10px 15px; border-radius: 5px; border: none; background-color: #e5e7eb; color: #1f2937; cursor: pointer;">Cancelar</button>
+                <button class="btn btn-danger confirm-delete-btn" style="padding: 10px 15px; border-radius: 5px; border: none; background-color: #ef4444; color: white; cursor: pointer;">Confirmar Exclusão</button>
             </div>
         </div>
     </div>
