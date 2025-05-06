@@ -1691,6 +1691,11 @@
         <i class="fas fa-redo-alt"></i>
     </button>
     
+    <!-- Adicionar botão para verificar a conexão com o Firebase antes do fechamento do body -->
+    <button id="firebase-test-btn" style="position: fixed; bottom: 80px; right: 20px; z-index: 1000; background: #4a5568; color: white; border: none; border-radius: 50%; width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2); cursor: pointer;" title="Verificar conexão com Firebase">
+        <i class="fas fa-database"></i>
+    </button>
+    
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
@@ -1722,6 +1727,54 @@
                 }
             });
         });
+
+        // Adicionar evento para o botão de teste do Firebase
+        document.addEventListener('DOMContentLoaded', function() {
+            const firebaseTestBtn = document.getElementById('firebase-test-btn');
+            if (firebaseTestBtn) {
+                firebaseTestBtn.addEventListener('click', function() {
+                    if (typeof window.checkFirebaseConnection === 'function') {
+                        window.checkFirebaseConnection();
+                    } else {
+                        const status = window.isFirebaseAvailable ? 'CONECTADO' : 'DESCONECTADO';
+                        alert(`Status do Firebase: ${status}\n\nFunção de verificação detalhada não disponível.`);
+                    }
+                });
+            }
+        });
+        
+        // Função para força sincronização com Firebase
+        function forceSync() {
+            try {
+                if (window.isFirebaseAvailable) {
+                    console.log('Forçando sincronização com Firebase...');
+                    
+                    // Salvar dados atuais no Firebase
+                    if (window.firebase_functions && window.firebase_functions.saveMilitaries && window.firebase_functions.saveSchedules) {
+                        Promise.all([
+                            window.firebase_functions.saveMilitaries(state.militaries),
+                            window.firebase_functions.saveSchedules(state.schedules)
+                        ])
+                        .then(() => {
+                            console.log('Sincronização forçada concluída com sucesso!');
+                            alert('Dados sincronizados com o Firebase com sucesso!');
+                        })
+                        .catch(error => {
+                            console.error('Erro na sincronização forçada:', error);
+                            alert('Erro ao sincronizar dados: ' + error.message);
+                        });
+                    } else {
+                        console.warn('Funções do Firebase não encontradas');
+                        alert('Funções do Firebase não disponíveis para sincronização.');
+                    }
+                } else {
+                    alert('Firebase não está disponível. Utilizando apenas armazenamento local.');
+                }
+            } catch (error) {
+                console.error('Erro ao sincronizar dados:', error);
+                alert('Erro ao sincronizar: ' + error.message);
+            }
+        }
     </script>
 </body>
 </html>

@@ -9,41 +9,54 @@ const firebaseConfig = {
   appId: "1:992132989313:web:f70a711cd6b335234ea880"
 };
 
-// Fallback mechanism variables
-let isFirebaseAvailable = false;
+// Expor variáveis para o escopo global para que outros scripts possam acessá-las
+window.isFirebaseAvailable = false;
+window.firebaseDB = null;
 let localUsers = JSON.parse(localStorage.getItem('localUsers') || '[]');
 let currentUser = null;
 
 // Initialize Firebase with error handling
 try {
-  firebase.initializeApp(firebaseConfig);
-  isFirebaseAvailable = true;
-  console.log('Firebase initialized successfully');
+  if (!firebase.apps.length) {
+    firebase.initializeApp(firebaseConfig);
+  }
+  window.isFirebaseAvailable = true;
+  window.firebaseDB = firebase.database();
+  console.log('Firebase inicializado com sucesso');
   
   // Test database connection
-  firebase.database().ref('.info/connected').on('value', function(snap) {
+  window.firebaseDB.ref('.info/connected').on('value', function(snap) {
     if (snap.val() === true) {
-      console.log('Connected to Firebase database');
+      console.log('Conectado ao banco de dados Firebase');
+      // Disparar evento de Firebase pronto
+      document.dispatchEvent(new Event('firebase-ready'));
     } else {
-      console.warn('Disconnected from Firebase database, may fall back to local storage');
+      console.warn('Desconectado do banco de dados Firebase, utilizando localStorage como fallback');
     }
   });
 } catch (error) {
-  console.error('Firebase initialization failed. Using localStorage fallback:', error);
-  alert('Erro na conexão com Firebase: ' + error.message);
-  isFirebaseAvailable = false;
+  console.error('Falha na inicialização do Firebase. Utilizando localStorage como fallback:', error);
+  // Não mostrar alerta para não interromper o usuário
+  window.isFirebaseAvailable = false;
+  window.firebaseDB = null;
+  
+  // Disparar evento de erro do Firebase
+  const errorEvent = new CustomEvent('firebase-error', { 
+    detail: { error: error.message } 
+  });
+  document.dispatchEvent(errorEvent);
 }
 
 // Auth and Database references (if available)
-const auth = isFirebaseAvailable ? firebase.auth() : null;
-const db = isFirebaseAvailable ? firebase.database() : null;
+const auth = window.isFirebaseAvailable ? firebase.auth() : null;
+const db = window.isFirebaseAvailable ? window.firebaseDB : null;
 
 // Data references (will be null if Firebase unavailable)
-const militariesRef = isFirebaseAvailable ? db.ref('militaries') : null;
-const schedulesRef = isFirebaseAvailable ? db.ref('schedules') : null;
+const militariesRef = window.isFirebaseAvailable ? db.ref('militaries') : null;
+const schedulesRef = window.isFirebaseAvailable ? db.ref('schedules') : null;
 
 // Skip authentication and show app directly
-console.log('Authentication disabled - showing app directly');
+console.log('Autenticação desativada - mostrando aplicativo diretamente');
 // Create a dummy user to satisfy app requirements
 const dummyUser = { 
   id: 'dummy_user',
@@ -52,7 +65,11 @@ const dummyUser = {
   isLocalUser: true
 };
 currentUser = dummyUser;
-handleAuthStateChange(dummyUser);
+
+// Iniciar o aplicativo quando o DOM estiver pronto
+document.addEventListener('DOMContentLoaded', () => {
+  handleAuthStateChange(dummyUser);
+});
 
 // Unified auth state change handler
 function handleAuthStateChange(user) {
@@ -65,19 +82,21 @@ function handleAuthStateChange(user) {
   }
   
   // Always show app regardless of auth state - login screen is removed
-  document.getElementById('login-panel').style.display = 'none';
-  document.getElementById('app-container').style.display = 'block';
+  const loginPanel = document.getElementById('login-panel');
+  const appContainer = document.getElementById('app-container');
+  
+  if (loginPanel) loginPanel.style.display = 'none';
+  if (appContainer) appContainer.style.display = 'block';
   
   // Initialize the app
   if (typeof initApp === 'function') {
     try {
       initApp();
     } catch (error) {
-      console.error('Error initializing app:', error);
-      alert('Erro ao inicializar o aplicativo: ' + error.message);
+      console.error('Erro ao inicializar o aplicativo:', error);
     }
   } else {
-    console.warn('initApp function not available, app may not initialize properly');
+    console.warn('Função initApp não disponível, o aplicativo pode não inicializar corretamente');
   }
 }
 
@@ -90,7 +109,7 @@ function loginUser(email, password) {
 
   console.log('Attempting login with email:', email);
   
-  if (isFirebaseAvailable) {
+  if (window.isFirebaseAvailable) {
     console.log('Using Firebase auth');
     return auth.signInWithEmailAndPassword(email, password)
       .then(userCredential => {
@@ -146,7 +165,7 @@ function registerUser(email, password) {
 
   console.log('Attempting registration with email:', email);
   
-  if (isFirebaseAvailable) {
+  if (window.isFirebaseAvailable) {
     console.log('Using Firebase auth for registration');
     return auth.createUserWithEmailAndPassword(email, password)
       .then(userCredential => {
@@ -204,7 +223,7 @@ function registerUser(email, password) {
 }
 
 function logoutUser() {
-  if (isFirebaseAvailable) {
+  if (window.isFirebaseAvailable) {
     return auth.signOut()
       .catch((error) => {
         console.error('Logout error:', error);
@@ -234,58 +253,112 @@ function showLoginError(message) {
 
 // Load militaries data
 function loadMilitaries() {
-  if (isFirebaseAvailable) {
-    return militariesRef.once('value').then(snapshot => {
-      const data = snapshot.val();
-      return data ? Object.values(data) : [];
-    });
+  if (window.isFirebaseAvailable && militariesRef) {
+    console.log('Carregando militares do Firebase...');
+    return militariesRef.once('value')
+      .then(snapshot => {
+        const data = snapshot.val();
+        console.log('Dados de militares carregados do Firebase:', data ? Object.keys(data).length : 0, 'registros');
+        return data ? Object.values(data) : [];
+      })
+      .catch(error => {
+        console.error('Erro ao carregar militares do Firebase:', error);
+        // Fallback to localStorage if Firebase fails
+        return JSON.parse(localStorage.getItem('militaries') || '[]');
+      });
   } else {
     // Local fallback
+    console.log('Carregando militares do localStorage...');
     const localMilitaries = JSON.parse(localStorage.getItem('militaries') || '[]');
+    console.log('Dados de militares carregados do localStorage:', localMilitaries.length, 'registros');
     return Promise.resolve(localMilitaries);
   }
 }
 
 // Load schedules data
 function loadSchedules() {
-  if (isFirebaseAvailable) {
-    return schedulesRef.once('value').then(snapshot => {
-      return snapshot.val() || {};
-    });
+  if (window.isFirebaseAvailable && schedulesRef) {
+    console.log('Carregando escalas do Firebase...');
+    return schedulesRef.once('value')
+      .then(snapshot => {
+        const data = snapshot.val() || {};
+        console.log('Dados de escalas carregados do Firebase:', Object.keys(data).length, 'datas');
+        return data;
+      })
+      .catch(error => {
+        console.error('Erro ao carregar escalas do Firebase:', error);
+        // Fallback to localStorage if Firebase fails
+        return JSON.parse(localStorage.getItem('schedules') || '{}');
+      });
   } else {
     // Local fallback
+    console.log('Carregando escalas do localStorage...');
     const localSchedules = JSON.parse(localStorage.getItem('schedules') || '{}');
+    console.log('Dados de escalas carregados do localStorage:', Object.keys(localSchedules).length, 'datas');
     return Promise.resolve(localSchedules);
   }
 }
 
 // Save militaries data
 function saveMilitaries(militariesObject) {
-  if (isFirebaseAvailable) {
-    return militariesRef.set(militariesObject);
-  } else {
-    // Local fallback - convert object to array if needed
+  // Sempre salvar no localStorage como fallback
+  try {
     const militariesArray = Array.isArray(militariesObject) ? 
       militariesObject : Object.values(militariesObject);
     localStorage.setItem('militaries', JSON.stringify(militariesArray));
-    return Promise.resolve();
+    console.log('Militares salvos no localStorage:', militariesArray.length, 'registros');
+  } catch (error) {
+    console.error('Erro ao salvar militares no localStorage:', error);
+  }
+  
+  // Salvar no Firebase se disponível
+  if (window.isFirebaseAvailable && militariesRef) {
+    console.log('Salvando militares no Firebase...');
+    return militariesRef.set(militariesObject)
+      .then(() => {
+        console.log('Militares salvos com sucesso no Firebase');
+        return true;
+      })
+      .catch(error => {
+        console.error('Erro ao salvar militares no Firebase:', error);
+        return false;
+      });
+  } else {
+    return Promise.resolve(true);
   }
 }
 
 // Save schedules data
 function saveSchedules(schedulesObject) {
-  if (isFirebaseAvailable) {
-    return schedulesRef.set(schedulesObject);
-  } else {
-    // Local fallback
+  // Sempre salvar no localStorage como fallback
+  try {
     localStorage.setItem('schedules', JSON.stringify(schedulesObject));
-    return Promise.resolve();
+    console.log('Escalas salvas no localStorage:', Object.keys(schedulesObject).length, 'datas');
+  } catch (error) {
+    console.error('Erro ao salvar escalas no localStorage:', error);
+  }
+  
+  // Salvar no Firebase se disponível
+  if (window.isFirebaseAvailable && schedulesRef) {
+    console.log('Salvando escalas no Firebase...');
+    return schedulesRef.set(schedulesObject)
+      .then(() => {
+        console.log('Escalas salvas com sucesso no Firebase');
+        return true;
+      })
+      .catch(error => {
+        console.error('Erro ao salvar escalas no Firebase:', error);
+        return false;
+      });
+  } else {
+    return Promise.resolve(true);
   }
 }
 
 // Setup real-time listeners if Firebase is available
 function setupMilitariesListener(callback) {
-  if (isFirebaseAvailable) {
+  if (window.isFirebaseAvailable && militariesRef) {
+    console.log('Configurando listener em tempo real para militares');
     militariesRef.on('value', snapshot => {
       const data = snapshot.val();
       const militaries = data ? Object.values(data) : [];
@@ -297,7 +370,8 @@ function setupMilitariesListener(callback) {
 }
 
 function setupSchedulesListener(callback) {
-  if (isFirebaseAvailable) {
+  if (window.isFirebaseAvailable && schedulesRef) {
+    console.log('Configurando listener em tempo real para escalas');
     schedulesRef.on('value', snapshot => {
       const data = snapshot.val() || {};
       callback(data);
@@ -306,6 +380,41 @@ function setupSchedulesListener(callback) {
   }
   return false; // Indicate that we couldn't set up a real-time listener
 }
+
+// Funcionalidade auxiliar para verificar conexão
+window.checkFirebaseConnection = function() {
+  if (window.isFirebaseAvailable && window.firebaseDB) {
+    window.firebaseDB.ref('.info/connected').once('value')
+      .then(snapshot => {
+        const connected = snapshot.val() === true;
+        alert(connected ? 
+          'Conectado ao Firebase com sucesso!' : 
+          'Não foi possível conectar ao Firebase. Utilizando armazenamento local.');
+        return connected;
+      })
+      .catch(error => {
+        alert('Erro ao verificar conexão: ' + error.message);
+        return false;
+      });
+  } else {
+    alert('Firebase não está disponível. Utilizando armazenamento local.');
+    return false;
+  }
+};
+
+// Logging de verificação na inicialização
+console.log('Status do Firebase ao carregar firebase-config.js:', 
+  window.isFirebaseAvailable ? 'disponível' : 'indisponível');
+
+// Adicionar à janela global para acesso de scripts e console
+window.firebase_functions = {
+  loadMilitaries,
+  loadSchedules,
+  saveMilitaries,
+  saveSchedules,
+  setupMilitariesListener,
+  setupSchedulesListener
+};
 
 // Instructions element shown in the login panel
 document.addEventListener('DOMContentLoaded', () => {

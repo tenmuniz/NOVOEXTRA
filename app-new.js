@@ -52,7 +52,7 @@ document.addEventListener('DOMContentLoaded', () => {
         
         // Configurar listener para erro do Firebase
         document.addEventListener('firebase-error', (e) => {
-            console.warn('Evento firebase-error recebido, inicializando aplicação com localStorage apenas:', e.detail.error);
+            console.warn('Evento firebase-error recebido, inicializando aplicação com localStorage apenas:', e.detail?.error);
             initializeApp();
         });
         
@@ -607,7 +607,7 @@ function setupAddScheduleButton() {
 }
 
 /**
- * Set up header buttons
+ * Set up header buttons (notifications, help, settings)
  */
 function setupHeaderButtons() {
     // Notifications button
@@ -622,15 +622,22 @@ function setupHeaderButtons() {
     const helpBtn = document.getElementById('help-btn');
     if (helpBtn) {
         helpBtn.addEventListener('click', function() {
-            alert('Sistema de ajuda em desenvolvimento');
+            // Verificar a conexão com o Firebase
+            const firebaseStatus = checkFirebaseAvailability() ? 'ATIVO' : 'INATIVO';
+            
+            alert(`Sistema de Escala Policial v1.0\n\n` +
+                  `Status do Firebase: ${firebaseStatus}\n` +
+                  `Militares cadastrados: ${state.militaries.length}\n` +
+                  `Escalas cadastradas: ${Object.keys(state.schedules).length}\n\n` +
+                  `Em caso de dúvidas, contate o suporte técnico.`);
         });
     }
     
-    // Theme/Settings button
-    const themeBtn = document.getElementById('theme-toggle');
-    if (themeBtn) {
-        themeBtn.addEventListener('click', function() {
-            alert('Configurações de tema em desenvolvimento');
+    // Theme toggle
+    const themeToggle = document.getElementById('theme-toggle');
+    if (themeToggle) {
+        themeToggle.addEventListener('click', function() {
+            alert('Sistema de personalização em desenvolvimento');
         });
     }
 }
@@ -639,11 +646,34 @@ function setupHeaderButtons() {
  * Set up logout button
  */
 function setupLogoutButton() {
-    const logoutBtn = document.getElementById('logout-button');
+    const logoutButton = document.getElementById('logout-button');
     
-    if (logoutBtn) {
-        logoutBtn.addEventListener('click', function() {
-            if (confirm('Deseja realmente reinicializar a sessão?')) {
+    if (logoutButton) {
+        logoutButton.addEventListener('click', function() {
+            // Perguntar ao usuário se deseja sincronizar antes de recarregar
+            if (checkFirebaseAvailability() && confirm('Deseja sincronizar os dados com o Firebase antes de recarregar?')) {
+                // Mostrar tela de carregamento durante a sincronização
+                showLoadingScreen();
+                
+                // Forçar salvamento no Firebase
+                Promise.all([
+                    saveMilitaries(state.militaries),
+                    saveSchedules(state.schedules)
+                ])
+                .then(() => {
+                    console.log('Dados sincronizados com sucesso antes de recarregar');
+                    hideLoadingScreen();
+                    alert('Dados sincronizados com sucesso!');
+                    window.location.reload();
+                })
+                .catch(error => {
+                    console.error('Erro ao sincronizar dados:', error);
+                    hideLoadingScreen();
+                    alert('Erro ao sincronizar dados. Recarregando mesmo assim.');
+                    window.location.reload();
+                });
+            } else {
+                // Recarregar a página sem sincronizar
                 window.location.reload();
             }
         });
